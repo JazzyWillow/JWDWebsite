@@ -1,0 +1,7 @@
+User-agent: Googlebot
+Disallow: /nogooglebot/
+
+User-agent: *
+Allow: /
+
+Sitemap: https://back-acceptable-squirrel-nego31.teleporthq.app/sitemap.xml

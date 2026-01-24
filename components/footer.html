@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>JWD Website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta property="twitter:card" content="summary_large_image" />
+
+    <style data-tag="reset-style-sheet">
+      html {  line-height: 1.15;}body {  margin: 0;}* {  box-sizing: border-box;  border-width: 0;  border-style: solid;  -webkit-font-smoothing: antialiased;}p,li,ul,pre,div,h1,h2,h3,h4,h5,h6,figure,blockquote,figcaption {  margin: 0;  padding: 0;}button {  background-color: transparent;}button,input,optgroup,select,textarea {  font-family: inherit;  font-size: 100%;  line-height: 1.15;  margin: 0;}button,select {  text-transform: none;}button,[type="button"],[type="reset"],[type="submit"] {  -webkit-appearance: button;  color: inherit;}button::-moz-focus-inner,[type="button"]::-moz-focus-inner,[type="reset"]::-moz-focus-inner,[type="submit"]::-moz-focus-inner {  border-style: none;  padding: 0;}button:-moz-focus,[type="button"]:-moz-focus,[type="reset"]:-moz-focus,[type="submit"]:-moz-focus {  outline: 1px dotted ButtonText;}a {  color: inherit;  text-decoration: inherit;}pre {  white-space: normal;}input {  padding: 2px 4px;}img {  display: block;}details {  display: block;  margin: 0;  padding: 0;}summary::-webkit-details-marker {  display: none;}[data-thq="accordion"] [data-thq="accordion-content"] {  max-height: 0;  overflow: hidden;  transition: max-height 0.3s ease-in-out;  padding: 0;}[data-thq="accordion"] details[data-thq="accordion-trigger"][open] + [data-thq="accordion-content"] {  max-height: 1000vh;}details[data-thq="accordion-trigger"][open] summary [data-thq="accordion-icon"] {  transform: rotate(180deg);}html { scroll-behavior: smooth  }
+    </style>
+    <style data-tag="default-style-sheet">
+      html {
+        font-family: Rubik;
+        font-size: 1rem;
+      }
+
+      body {
+        font-weight: 400;
+        font-style:normal;
+        text-decoration: undefined;
+        text-transform: undefined;
+        letter-spacing: 0.01em;
+        line-height: 1.6;
+        color: var(--color-on-surface);
+        background: var(--color-surface);
+
+        fill: var(--color-on-surface);
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/animate.css@4.1.1/animate.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap"
+      data-tag="font"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap"
+      data-tag="font"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap"
+      data-tag="font"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap"
+      data-tag="font"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&amp;display=swap"
+      data-tag="font"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@teleporthq/teleport-custom-scripts/dist/style.css"
+    />
+  </head>
+  <body>
+    <link rel="stylesheet" href="../style.css" />
+    <div>
+      <link href="./footer.css" rel="stylesheet" />
+      <div class="footer-container1">
+        <footer class="footer-root">
+          <div class="footer-overlay"></div>
+          <div class="footer-container">
+            <div class="footer-grid">
+              <div class="footer-brand-column">
+                <div class="footer-logo-wrapper">
+                  <svg
+                    fill="none"
+                    width="32"
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="32"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="footer-brand-icon"
+                  >
+                    <path
+                      d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0l4.212 2.106a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619V12m-6-6.236V12m3 3v6m3-3h-6M9 3.236v15"
+                    ></path>
+                  </svg>
+                  <span class="footer-brand-name section-title">
+                    Jazzy Willow Designs
+                  </span>
+                </div>
+                <p class="footer-brand-tagline section-content">
+                  Laser-cut travel maps with Story Tags that make every journey
+                  interactive.
+                </p>
+                <div class="footer-social-links">
+                  <a
+                    href="https://www.facebook.com/jazzywillowdesigns"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    <div
+                      aria-label="Facebook"
+                      class="footer-thq-footer-social-item-elm1 footer-social-item"
+                    >
+                      <svg
+                        fill="none"
+                        width="20"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="20"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"
+                        ></path>
+                      </svg>
+                    </div>
+                  </a>
+                  <a
+                    href="https://www.instagram.com/jazzywillowdesigns/"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    <div
+                      aria-label="Instagram"
+                      class="footer-thq-footer-social-item-elm2 footer-social-item"
+                    >
+                      <svg
+                        fill="none"
+                        width="20"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="20"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <rect
+                          x="2"
+                          y="2"
+                          rx="5"
+                          ry="5"
+                          width="20"
+                          height="20"
+                        ></rect>
+                        <path
+                          d="M16 11.37A4 4 0 1 1 12.63 8A4 4 0 0 1 16 11.37m1.5-4.87h.01"
+                        ></path>
+                      </svg>
+                    </div>
+                  </a>
+                </div>
+              </div>
+              <div class="footer-nav-column">
+                <h3 class="footer-column-heading section-subtitle">
+                  The Collection
+                </h3>
+                <nav class="footer-nav-list">
+                  <a href="#">
+                    <div class="footer-nav-link">
+                      <span>National Park Travel Maps</span>
+                    </div>
+                  </a>
+                  <a href="#">
+                    <div class="footer-nav-link">
+                      <span>State Parks Travel Maps</span>
+                    </div>
+                  </a>
+                  <a href="#">
+                    <div class="footer-nav-link">
+                      <span>US Travel Maps</span>
+                    </div>
+                  </a>
+                  <a href="Old Florida &amp; Historic Hauntings">
+                    <div class="footer-nav-link">
+                      <span>Specialty Travel Maps</span>
+                    </div>
+                  </a>
+                  <a href="#">
+                    <div class="footer-nav-link">
+                      <span>Stadium Travel Maps</span>
+                    </div>
+                  </a>
+                </nav>
+              </div>
+              <div class="footer-nav-column">
+                <h3 class="footer-column-heading section-subtitle">
+                  Stay Haunted
+                </h3>
+                <p class="section-content footer-newsletter-text">
+                  Sign up for early access to new products and special offers.
+                </p>
+                <form
+                  action="#"
+                  method="POST"
+                  data-form-id="c0c916e9-7df7-4fb1-98f5-9a572996363a"
+                  class="footer-newsletter-form"
+                >
+                  <div class="footer-input-group">
+                    <input
+                      type="email"
+                      id="thq_textinput_0NXh"
+                      name="textinput"
+                      required="true"
+                      aria-label="Email for newsletter"
+                      placeholder="Your spectral email"
+                      data-form-field-id="thq_textinput_0NXh"
+                      class="footer-input"
+                    />
+                    <button
+                      id="thq_button_1SDS"
+                      name="button"
+                      type="submit"
+                      data-form-field-id="thq_button_1SDS"
+                      class="btn-primary footer-submit-btn btn btn-sm"
+                    >
+                      Invoke
+                    </button>
+                  </div>
+                </form>
+                <div class="footer-contact-info">
+                  <div class="footer-contact-item">
+                    <svg
+                      fill="none"
+                      width="16"
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="16"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="footer-contact-icon"
+                    >
+                      <path
+                        d="M12 2a8 8 0 0 0-8 8v12l3-3l2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8"
+                      ></path>
+                    </svg>
+                    <span class="section-content">Tampa, Florida</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="footer-bottom">
+              <div class="footer-bottom-content">
+                <span class="footer-copyright section-content">
+                  &amp;copy; 2026 Jazzy Willow Designs. All spirits reserved.
+                </span>
+                <div class="footer-legal-links">
+                  <a href="#">
+                    <div class="footer-legal-link">
+                      <span>Privacy Policy</span>
+                    </div>
+                  </a>
+                  <a href="#">
+                    <div class="footer-legal-link">
+                      <span>Terms of Service</span>
+                    </div>
+                  </a>
+                  <a href="#">
+                    <div class="footer-legal-link">
+                      <span>Shipping &amp; Returns</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </footer>
+        <div class="footer-container2">
+          <div class="footer-container3">
+            <script defer="" data-name="hauntmaple-footer">
+              document.addEventListener('DOMContentLoaded', function() {
+                (function(){
+                  const footerForm = document.querySelector(".footer-newsletter-form")
+                  if (footerForm) {
+                    footerForm.addEventListener("submit", (e) => {
+                      const emailInput = footerForm.querySelector('input[type="email"]')
+                      if (emailInput.value) {
+                        const submitBtn = footerForm.querySelector(".footer-submit-btn")
+                        const originalText = submitBtn.textContent
+
+                        submitBtn.disabled = true
+                        submitBtn.textContent = "Summoned"
+                        submitBtn.style.backgroundColor = "var(--color-secondary)"
+                        submitBtn.style.color = "var(--color-on-secondary)"
+
+                        setTimeout(() => {
+                          footerForm.reset()
+                          submitBtn.disabled = false
+                          submitBtn.textContent = originalText
+                          submitBtn.style.backgroundColor = ""
+                          submitBtn.style.color = ""
+                        }, 3000)
+                      }
+                    })
+                  }
+                })()
+              });
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
