@@ -1631,7 +1631,11 @@
   .footer-brand-column {
     flex: 100%;
     margin-bottom: var(--spacing-xl);
+    font-size: 1rem;
   }
+  
+
+
   .footer-nav-column {
     flex: 1 1 45%;
   }
@@ -1792,3 +1796,24 @@
     flex-direction: column;
   }
 }
+
+
+
+/* 1. Lock the container width so the image can't 'explode' */
+.footer-logo-container {
+  width: fit-content !important;
+  display: block !important;
+  margin-bottom: 10px;
+}
+
+/* 2. Force the image to obey the height of the text */
+.footer-logo-img {
+  /* This is roughly the size of two lines of text */
+  height: 10rem !important; 
+  
+  /* These lines kill any 'width: 100%' rules from elsewhere */
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
