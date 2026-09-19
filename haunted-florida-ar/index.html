@@ -69,19 +69,18 @@
   smoothTolerance=".01"
   smoothThreshold="5">
 
-  <!-- Raised & Scaled Test Box -->
-  <!-- Z-position raised so it floats directly above the tracking plane -->
+  <!-- Giant Test Box centered over origin -->
   <a-box 
-    position="50 50 0" 
-    scale="100 100 100" 
-    material="color: red; opacity: 0.9;">
+    position="0 0 0" 
+    scale="150 150 150" 
+    material="color: red; opacity: 0.8;">
   </a-box>
 
-  <!-- 3D Ghost Model Entity -->
+  <!-- 3D Ghost Model -->
   <a-entity
     gltf-model="#ghostModel"
-    scale="50 50 50"
-    position="50 0 0"
+    scale="20 20 20"
+    position="0 0 0"
     rotation="-90 0 0">
   </a-entity>
 
