@@ -40,6 +40,7 @@
     vr-mode-ui="enabled: false;"
     renderer="logarithmicDepthBuffer: true;"
     embedded
+    gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/v1/decoders/;"
     arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
 
     <a-assets>
@@ -59,6 +60,13 @@
       smoothCount="10"
       smoothTolerance=".01"
       smoothThreshold="5">
+
+      <!-- 1. Test Red Box (Guaranteed to render if tracking locks on) -->
+      <a-box 
+        position="0 0 0" 
+        scale="30 30 30" 
+        material="color: red;">
+      </a-box>
 
       <!-- 3D Ghost Model Entity -->
       <a-entity
