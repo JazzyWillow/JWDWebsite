@@ -5,14 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Haunted Map AR</title>
 
-  <!-- Core Open-Source Libraries (Non-AI) -->
+  <!-- Core Open-Source Libraries -->
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+  
   <!-- Meshopt Decoder -->
   <script src="https://unpkg.com/meshoptimizer@0.18.1/meshopt_decoder.js"></script>
+  
+  <!-- Register Meshopt with A-Frame's GLTF Loader -->
+  <script>
+    THREE.GLTFLoader.MAX_INFLUENCES = 8;
+    AFrame.registerComponent('meshopt-support', {
+      init: function () {
+        this.el.sceneEl.systems['gltf-model'].getGLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+      }
+    });
+  </script>
+
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
 
   <style>
-    /* Loading overlay shown while tracking descriptors parse in memory */
     .arjs-loader {
       height: 100%;
       width: 100%;
@@ -42,28 +53,23 @@
     vr-mode-ui="enabled: false;"
     renderer="logarithmicDepthBuffer: true;"
     embedded
-    gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/v1/decoders/;"
+    meshopt-support
     arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
 
     <a-assets>
-      <!-- Preload the GLB model asset -->
       <a-asset-item id="ghostModel" src="./ghost-meshopt.glb"></a-asset-item>
     </a-assets>
 
-    <!-- 
-      NFT Tracking Target:
-      Notice url="./map-window" HAS NO EXTENSION. 
-      AR.js automatically appends .iset, .fset, and .fset3 internally.
-    -->
+    <!-- Absolute path pointing to the subfolder files -->
     <a-nft
       type="nft"
-      url="./haunted-florida-ar"
+      url="/haunted-florida-ar/haunted-florida-ar"
       smooth="true"
       smoothCount="10"
       smoothTolerance=".01"
       smoothThreshold="5">
 
-      <!-- 1. Test Red Box (Guaranteed to render if tracking locks on) -->
+      <!-- Test Red Box -->
       <a-box 
         position="0 0 0" 
         scale="30 30 30" 
@@ -80,13 +86,11 @@
 
     </a-nft>
 
-    <!-- Virtual Camera -->
     <a-entity camera></a-entity>
 
   </a-scene>
 
   <script>
-    // Hide the loader screen once the camera and NFT target descriptors finish initializing
     window.addEventListener("arjs-nft-loaded", () => {
       document.querySelector(".arjs-loader").style.display = "none";
     });
