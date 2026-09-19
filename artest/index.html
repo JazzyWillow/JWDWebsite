@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Haunted Map AR - Barcode Marker</title>
+  <title>Haunted Map AR - Meshopt Ghost</title>
 
   <!-- Eruda Mobile Console -->
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
@@ -14,47 +14,43 @@
 
   <!-- Modern AR.js -->
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+
+  <!-- Load Meshopt Decoder library before scene initializes -->
+  <script src="https://cdn.jsdelivr.net/npm/meshoptimizer@0.21.0/meshopt_decoder.js"></script>
 </head>
 
 <body style="margin: 0px; overflow: hidden;">
 
   <!-- 
-    detectionMode: mono_and_matrix turns on barcode parsing.
-    matrixCodeType: 3x3 matches the generator setting.
+    gltf-model="meshoptDecoderPath: ..." tells Three.js where to fetch the decoder for compressed GLBs
   -->
   <a-scene 
     embedded 
+    gltf-model="meshoptDecoderPath: https://cdn.jsdelivr.net/npm/meshoptimizer@0.21.0/meshopt_decoder.js;"
     arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;">
 
     <a-assets>
-      <!-- Preload your model -->
+      <!-- Preload the compressed .glb asset -->
       <a-asset-item id="ghostModel" src="./ghost-meshopt.glb"></a-asset-item>
     </a-assets>
 
-    <!-- 
-      type="barcode"
-      value="5" corresponds to Barcode ID #5 from the generator
-    -->
-    <a-marker type="barcode" value="1">
+    <!-- Matrix/Barcode Target #5 -->
+    <a-marker type="barcode" value="5">
       
-      <!-- Red Test Box -->
-      <a-box 
-        position="0 0.5 0" 
-        scale="1 1 1"
-        material="color: red; opacity: 0.8;">
-      </a-box>
+      <!-- Ambient light so the ghost texture displays bright and clear -->
+      <a-entity light="type: ambient; color: #ffffff; intensity: 1.5;"></a-entity>
 
       <!-- 3D Ghost Model -->
       <a-entity
         gltf-model="#ghostModel"
-        scale="0.5 0.5 0.5"
         position="0 0 0"
-        rotation="-90 0 0">
+        rotation="0 0 0"
+        scale="0.5 0.5 0.5">
       </a-entity>
 
     </a-marker>
 
-    <!-- Camera Entity -->
+    <!-- Camera -->
     <a-entity camera></a-entity>
 
   </a-scene>
