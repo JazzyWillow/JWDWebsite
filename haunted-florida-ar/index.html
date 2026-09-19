@@ -1,112 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, user-scalable=no"
-  >
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
   <title>Haunted Florida AR</title>
 
-
-  <!-- ========================================================= -->
-  <!-- ERUDA MOBILE DEBUGGER                                     -->
-  <!-- ========================================================= -->
-
+  <!-- Eruda mobile console -->
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-
   <script>
     eruda.init();
   </script>
 
-
-  <!-- ========================================================= -->
-  <!-- A-FRAME 1.6.0                                            -->
-  <!-- ========================================================= -->
-
+  <!-- A-Frame 1.6.0 -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
-
-  <!-- ========================================================= -->
-  <!-- AR.JS 3.4.8 - NFT / IMAGE TRACKING                       -->
-  <!-- ========================================================= -->
-
+  <!-- AR.js 3.4.8 -->
   <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.8/aframe/build/aframe-ar-nft.js"></script>
 
+  <!-- Ghost model diagnostics -->
+  <script>
+    AFRAME.registerComponent('ghost-debug', {
 
-  <!-- ========================================================= -->
-  <!-- PAGE STYLING                                              -->
-  <!-- ========================================================= -->
+      init: function () {
 
-  <style>
+        console.log("***** GHOST ENTITY INITIALIZED *****");
 
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
+        this.el.addEventListener('model-loaded', function (event) {
+          console.log(
+            "***** GHOST MODEL LOADED SUCCESSFULLY *****",
+            event
+          );
+        });
 
-    .arjs-loader {
-      height: 100%;
-      width: 100%;
+        this.el.addEventListener('model-error', function (event) {
+          console.error(
+            "***** GHOST MODEL ERROR *****",
+            event
+          );
+        });
 
-      position: absolute;
+      }
 
-      top: 0;
-      left: 0;
-
-      background-color: rgba(0, 0, 0, 0.85);
-
-      z-index: 9999;
-
-      display: flex;
-
-      justify-content: center;
-      align-items: center;
-
-      color: #ffffff;
-
-      font-family: sans-serif;
-
-      font-size: 1.2rem;
-
-      text-align: center;
-    }
-
-  </style>
+    });
+  </script>
 
 </head>
 
-
-<body>
-
-
-  <!-- ========================================================= -->
-  <!-- LOADING SCREEN                                            -->
-  <!-- ========================================================= -->
-
-  <div class="arjs-loader">
-
-    <div>
-      Loading Haunted Florida Tracking...
-    </div>
-
-  </div>
-
-
-  <!-- ========================================================= -->
-  <!-- A-FRAME SCENE                                             -->
-  <!-- ========================================================= -->
+<body style="margin: 0; overflow: hidden;">
 
   <a-scene
-
     vr-mode-ui="enabled: false"
 
     renderer="
@@ -117,8 +61,7 @@
     embedded
 
     gltf-model="
-      meshoptDecoderPath:
-      https://unpkg.com/meshoptimizer@0.18.1/meshopt_decoder.cjs;
+      meshoptDecoderPath: https://unpkg.com/meshoptimizer@0.18.1/meshopt_decoder.cjs;
     "
 
     arjs="
@@ -126,224 +69,138 @@
       sourceType: webcam;
       debugUIEnabled: false;
     "
-
   >
 
-
-    <!-- ======================================================= -->
-    <!-- ASSETS                                                   -->
-    <!-- ======================================================= -->
-
-    <a-assets>
-
-      <a-asset-item
-        id="ghostModel"
-        src="./ghost-meshopt.glb"
-      ></a-asset-item>
-
-    </a-assets>
-
-
-    <!-- ======================================================= -->
-    <!-- HAUNTED FLORIDA NFT TARGET                               -->
-    <!-- ======================================================= -->
+    <!--
+      ============================================================
+      HAUNTED FLORIDA NFT TARGET
+      ============================================================
+    -->
 
     <a-nft
+      id="hauntedFloridaTarget"
 
       type="nft"
 
       url="/haunted-florida-ar/haunted-florida-ar"
 
       smooth="true"
-
       smoothCount="10"
-
       smoothTolerance="0.01"
-
       smoothThreshold="5"
-
     >
 
+      <!--
+        ==========================================================
+        GHOST MODEL
 
-      <!-- ===================================================== -->
-      <!-- RED TEST BOX                                           -->
-      <!-- ===================================================== -->
-
-      <a-box
-
-        position="0 0 0"
-
-        scale="50 50 50"
-
-        material="
-          color: red;
-          opacity: 0.8;
-          transparent: true;
-        "
-
-      ></a-box>
-
-
-      <!-- ===================================================== -->
-      <!-- GHOST MODEL                                            -->
-      <!-- ===================================================== -->
+        Loaded directly instead of through <a-assets>.
+        ==========================================================
+      -->
 
       <a-entity
-
         id="ghostEntity"
 
-        gltf-model="#ghostModel"
+        ghost-debug
+
+        gltf-model="url(./ghost-meshopt.glb)"
 
         scale="20 20 20"
 
         position="0 0 0"
 
         rotation="-90 0 0"
+      >
+      </a-entity>
 
-      ></a-entity>
+      <!--
+        Temporary red diagnostic box.
 
+        If the NFT target is detected, this should appear even
+        if the ghost itself has a loading/visibility problem.
+      -->
+
+      <a-box
+        id="debugBox"
+
+        position="0 0 0"
+
+        scale="150 150 150"
+
+        color="red"
+
+        opacity="0.25"
+      >
+      </a-box>
 
     </a-nft>
 
 
-    <!-- ======================================================= -->
-    <!-- CAMERA                                                   -->
-    <!-- ======================================================= -->
+    <!-- Camera -->
 
     <a-entity camera></a-entity>
-
 
   </a-scene>
 
 
-  <!-- ========================================================= -->
-  <!-- DEBUG / EVENT MONITORING                                  -->
-  <!-- ========================================================= -->
+  <!-- ============================================================
+       ADDITIONAL DIAGNOSTICS
+       ============================================================ -->
 
   <script>
 
-    /*
-     * Wait until the page has finished creating the A-Frame
-     * elements before attaching our diagnostic listeners.
-     */
+    document.addEventListener('DOMContentLoaded', function () {
 
-    window.addEventListener("DOMContentLoaded", () => {
-
-      const loader =
-        document.querySelector(".arjs-loader");
-
-      const nft =
-        document.querySelector("a-nft");
-
-      const ghostEntity =
-        document.querySelector("#ghostEntity");
-
-      const ghostAsset =
-        document.querySelector("#ghostModel");
+      console.log("***** DOM CONTENT LOADED *****");
 
 
-      /* ======================================================= */
-      /* A-FRAME SCENE LOADED                                    */
-      /* ======================================================= */
+      const scene = document.querySelector('a-scene');
 
-      const scene =
-        document.querySelector("a-scene");
+      const nft = document.querySelector('#hauntedFloridaTarget');
 
-      scene.addEventListener("loaded", () => {
+      const ghost = document.querySelector('#ghostEntity');
 
-        console.log(
-          "***** A-FRAME SCENE LOADED *****"
-        );
 
-        console.log(
-          "A-Frame version:",
-          AFRAME.version
-        );
+      /*
+       * Scene loaded
+       */
+
+      scene.addEventListener('loaded', function () {
+
+        console.log("***** A-FRAME SCENE LOADED *****");
 
       });
 
 
-      /* ======================================================= */
-      /* GHOST ASSET LOADED                                      */
-      /* ======================================================= */
+      /*
+       * NFT initialization
+       */
 
-      ghostAsset.addEventListener("loaded", () => {
+      nft.addEventListener('loaded', function () {
 
-        console.log(
-          "***** GHOST ASSET LOADED *****"
-        );
+        console.log("***** NFT INIT DATA *****");
 
       });
 
 
-      /* ======================================================= */
-      /* GHOST ASSET ERROR                                       */
-      /* ======================================================= */
+      /*
+       * NFT target found
+       */
 
-      ghostAsset.addEventListener("error", (event) => {
-
-        console.error(
-          "***** GHOST ASSET ERROR *****",
-          event
-        );
-
-      });
-
-
-      /* ======================================================= */
-      /* GHOST MODEL SUCCESSFULLY LOADED                         */
-      /* ======================================================= */
-
-      ghostEntity.addEventListener("model-loaded", (event) => {
-
-        console.log(
-          "***** GHOST MODEL LOADED SUCCESSFULLY *****"
-        );
-
-        console.log(
-          "Ghost model details:",
-          event
-        );
-
-      });
-
-
-      /* ======================================================= */
-      /* GHOST MODEL ERROR                                       */
-      /* ======================================================= */
-
-      ghostEntity.addEventListener("model-error", (event) => {
-
-        console.error(
-          "***** GHOST MODEL ERROR *****",
-          event
-        );
-
-      });
-
-
-      /* ======================================================= */
-      /* NFT TARGET FOUND                                        */
-      /* ======================================================= */
-
-      nft.addEventListener("targetFound", () => {
+      nft.addEventListener('targetFound', function () {
 
         console.log(
           "***** HAUNTED FLORIDA TARGET FOUND *****"
         );
 
-        if (loader) {
-          loader.style.display = "none";
-        }
-
       });
 
 
-      /* ======================================================= */
-      /* NFT TARGET LOST                                         */
-      /* ======================================================= */
+      /*
+       * NFT target lost
+       */
 
-      nft.addEventListener("targetLost", () => {
+      nft.addEventListener('targetLost', function () {
 
         console.log(
           "***** HAUNTED FLORIDA TARGET LOST *****"
@@ -352,44 +209,52 @@
       });
 
 
-      /* ======================================================= */
-      /* NFT DESCRIPTORS LOADED                                  */
-      /* ======================================================= */
+      /*
+       * Additional ghost diagnostics.
+       *
+       * These are intentionally attached immediately after
+       * DOMContentLoaded as a backup to the ghost-debug component.
+       */
 
-      window.addEventListener(
-        "arjs-nft-loaded",
-        () => {
+      ghost.addEventListener('model-loaded', function (event) {
 
-          console.log(
-            "***** NFT DESCRIPTORS LOADED *****"
-          );
+        console.log(
+          "***** BACKUP: GHOST MODEL LOADED *****",
+          event
+        );
 
-        }
-      );
+      });
 
 
-      /* ======================================================= */
-      /* NFT INITIALIZATION DATA                                 */
-      /* ======================================================= */
+      ghost.addEventListener('model-error', function (event) {
 
-      window.addEventListener(
-        "arjs-nft-init-data",
-        (event) => {
+        console.error(
+          "***** BACKUP: GHOST MODEL ERROR *****",
+          event
+        );
 
-          console.log(
-            "***** NFT INIT DATA *****",
-            event.detail
-          );
+      });
 
-        }
-      );
 
+      /*
+       * Watch for the NFT descriptor loading.
+       */
+
+      window.addEventListener('arjs-nft-loaded', function (event) {
+
+        console.log(
+          "***** NFT DESCRIPTORS LOADED *****",
+          event
+        );
+
+      });
+
+
+      console.log("***** DIAGNOSTIC LISTENERS INSTALLED *****");
 
     });
 
   </script>
 
-
 </body>
-
 </html>
