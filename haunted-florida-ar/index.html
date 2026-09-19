@@ -62,29 +62,30 @@
 
     <!-- Absolute path pointing to the subfolder files -->
     <a-nft
-      type="nft"
-      url="/haunted-florida-ar/haunted-florida-ar"
-      smooth="true"
-      smoothCount="10"
-      smoothTolerance=".01"
-      smoothThreshold="5">
+  type="nft"
+  url="/haunted-florida-ar/haunted-florida-ar"
+  smooth="true"
+  smoothCount="10"
+  smoothTolerance=".01"
+  smoothThreshold="5">
 
-      <!-- Test Red Box -->
-      <a-box 
-        position="0 0 0" 
-        scale="30 30 30" 
-        material="color: red;">
-      </a-box>
+  <!-- Raised & Scaled Test Box -->
+  <!-- Z-position raised so it floats directly above the tracking plane -->
+  <a-box 
+    position="50 50 0" 
+    scale="100 100 100" 
+    material="color: red; opacity: 0.9;">
+  </a-box>
 
-      <!-- 3D Ghost Model Entity -->
-      <a-entity
-        gltf-model="#ghostModel"
-        scale="10 10 10"
-        position="50 0 -10"
-        rotation="-90 0 0">
-      </a-entity>
+  <!-- 3D Ghost Model Entity -->
+  <a-entity
+    gltf-model="#ghostModel"
+    scale="50 50 50"
+    position="50 0 0"
+    rotation="-90 0 0">
+  </a-entity>
 
-    </a-nft>
+</a-nft>
 
     <a-entity camera></a-entity>
 
