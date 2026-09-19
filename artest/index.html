@@ -2,39 +2,72 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Haunted Florida AR - MindAR</title>
 
-  <title>Haunted Florida AR</title>
-
-  <!-- Eruda mobile console -->
+  <!-- Eruda Mobile Debugger -->
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
 
-  <!-- 1. Modern A-Frame 1.8.0 -->
-  <script src="https://aframe.io/releases/1.8.0/aframe.min.js"></script>
+  <!-- 1. A-Frame (1.5.0 supported natively) -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 
-  <!-- 2. Official AR.js maintained build for A-Frame -->
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  <!-- 2. MindAR for A-Frame -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    /* Fullscreen camera container */
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
 </head>
 
-<body style="margin: 0px; overflow: hidden;">
+<body>
 
-  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+  <!-- 
+    mindar-image system configuration:
+    imageTargetSrc points directly to your single .mind file
+  -->
+  <a-scene 
+    mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: yes; uiError: yes; uiScanning: yes;" 
+    embedded 
+    color-space="sRGB" 
+    renderer="colorManagement: true, physicallyCorrectLights" 
+    vr-mode-ui="enabled: false" 
+    device-orientation-permission-ui="enabled: false">
 
-    <!-- Define the Hiro Marker Target -->
-    <a-marker preset="hiro">
-      <!-- The red semi-transparent test cube -->
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <!-- 
+      targetIndex: 0 corresponds to the first image compiled inside targets.mind
+    -->
+    <a-entity mindar-image-target="targetIndex: 0">
+      
+      <!-- Test Red Box (Centered on the map target) -->
       <a-box 
-        position="0 0.5 0" 
-        material="color: red; opacity: 0.7;"
-        scale="1 1 1">
+        position="0 0 0" 
+        scale="0.5 0.5 0.5" 
+        material="color: red; opacity: 0.8;">
       </a-box>
-    </a-marker>
 
-    <!-- Static Camera Entity (Required for modern A-Frame) -->
-    <a-entity camera></a-entity>
+    </a-entity>
 
   </a-scene>
+
+  <script>
+    // Event listeners to confirm tracking in console
+    const targetEntity = document.querySelector('[mindar-image-target]');
+    
+    targetEntity.addEventListener("targetFound", () => {
+      console.log("MindAR Target Locked!");
+    });
+
+    targetEntity.addEventListener("targetLost", () => {
+      console.log("MindAR Target Lost.");
+    });
+  </script>
 
 </body>
 </html>
