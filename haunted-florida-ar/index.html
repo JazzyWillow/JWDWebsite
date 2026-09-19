@@ -92,14 +92,15 @@
   </a-scene>
 
   <script>
-    window.addEventListener("arjs-nft-loaded", () => {
-      document.querySelector(".arjs-loader").style.display = "none";
-    });
-
-  </script>
+  window.addEventListener("arjs-nft-loaded", () => {
+    const loader = document.querySelector(".arjs-loader");
+    if (loader) {
+      loader.style.display = "none";
+    }
+    console.log("NFT Loaded Successfully!");
+  });
+</script>
   
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
 
 
 </body>
