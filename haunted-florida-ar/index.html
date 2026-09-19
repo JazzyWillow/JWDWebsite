@@ -5,22 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Haunted Map AR</title>
 
-  <!-- Core Open-Source Libraries -->
+  <!-- Eruda Mobile Debugger (Optional) -->
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init();</script>
+
+  <!-- 1. Core A-Frame Library -->
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-  
-  <!-- Meshopt Decoder -->
+
+  <!-- 2. Meshopt Decoder Script -->
   <script src="https://unpkg.com/meshoptimizer@0.18.1/meshopt_decoder.js"></script>
-  
-  <!-- Register Meshopt with A-Frame's GLTF Loader -->
+
+  <!-- 3. Register Meshopt Component (After A-Frame is loaded) -->
   <script>
-    THREE.GLTFLoader.MAX_INFLUENCES = 8;
-    AFrame.registerComponent('meshopt-support', {
+    AFRAME.registerComponent('meshopt-support', {
       init: function () {
-        this.el.sceneEl.systems['gltf-model'].getGLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+        const loader = this.el.sceneEl.systems['gltf-model'].getGLTFLoader();
+        if (typeof MeshoptDecoder !== 'undefined') {
+          loader.setMeshoptDecoder(MeshoptDecoder);
+        }
       }
     });
   </script>
 
+  <!-- 4. AR.js Library -->
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
 
   <style>
@@ -60,47 +67,44 @@
       <a-asset-item id="ghostModel" src="./ghost-meshopt.glb"></a-asset-item>
     </a-assets>
 
-    <!-- Absolute path pointing to the subfolder files -->
     <a-nft
-  type="nft"
-  url="/haunted-florida-ar/haunted-florida-ar"
-  smooth="true"
-  smoothCount="10"
-  smoothTolerance=".01"
-  smoothThreshold="5">
+      type="nft"
+      url="/haunted-florida-ar/haunted-florida-ar"
+      smooth="true"
+      smoothCount="10"
+      smoothTolerance=".01"
+      smoothThreshold="5">
 
-  <!-- Giant Test Box centered over origin -->
-  <a-box 
-    position="0 0 0" 
-    scale="150 150 150" 
-    material="color: red; opacity: 0.8;">
-  </a-box>
+      <!-- Test Red Box centered over tracking origin -->
+      <a-box 
+        position="0 0 0" 
+        scale="150 150 150" 
+        material="color: red; opacity: 0.8;">
+      </a-box>
 
-  <!-- 3D Ghost Model -->
-  <a-entity
-    gltf-model="#ghostModel"
-    scale="20 20 20"
-    position="0 0 0"
-    rotation="-90 0 0">
-  </a-entity>
+      <!-- 3D Ghost Model Entity -->
+      <a-entity
+        gltf-model="#ghostModel"
+        scale="20 20 20"
+        position="0 0 0"
+        rotation="-90 0 0">
+      </a-entity>
 
-</a-nft>
+    </a-nft>
 
     <a-entity camera></a-entity>
 
   </a-scene>
 
   <script>
-  window.addEventListener("arjs-nft-loaded", () => {
-    const loader = document.querySelector(".arjs-loader");
-    if (loader) {
-      loader.style.display = "none";
-    }
-    console.log("NFT Loaded Successfully!");
-  });
-</script>
-  
-
+    window.addEventListener("arjs-nft-loaded", () => {
+      const loader = document.querySelector(".arjs-loader");
+      if (loader) {
+        loader.style.display = "none";
+      }
+      console.log("NFT Loaded Successfully!");
+    });
+  </script>
 
 </body>
 </html>
