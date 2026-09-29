@@ -24,112 +24,103 @@
 
 
 <style>
+    /* Fullscreen UI Overlay to satisfy mobile browser autoplay policy */
     #start-overlay {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.85); z-index: 9999;
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-      color: white; font-family: sans-serif;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-family: sans-serif;
     }
+
     #start-btn {
-      padding: 15px 30px; font-size: 18px; font-weight: bold;
-      color: #fff; background-color: #007bff; border: none; border-radius: 8px; cursor: pointer;
+      padding: 15px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
 
+  <!-- Tap-to-Start Screen -->
   <div id="start-overlay">
     <h2>Tap to Start AR</h2>
+    <p>Camera and video access required</p>
     <button id="start-btn">Start Experience</button>
   </div>
 
+  <!-- A-Frame AR Scene Configured for Barcode Markers -->
   <a-scene
     embedded
     arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
     vr-mode-ui="enabled: false">
 
     <a-assets>
+      <!-- Preload the Green Screen MP4 Video -->
       <video
-        id="ar-video"
+        id="greenscreen-video"
         src="test-video.mp4"
         loop="true"
-        muted
-        playsinline
-        webkit-playsinline
         crossorigin="anonymous"
-        preload="auto">
+        playsinline
+        webkit-playsinline>
       </video>
     </a-assets>
 
+    <!-- Barcode Marker (Targeting Barcode Value 3) -->
     <a-marker type="barcode" value="1" id="barcode-marker">
-      <!-- Plane driven by custom video-texture component compatible with A-Frame 1.6.0 -->
+      
+      <!-- 
+        Plane with Chromakey Material Shader:
+        - color: Target green color to key out (0.1 0.9 0.1 is standard)
+      -->
       <a-plane
-        video-texture
+        material="shader: chromakey; src: #greenscreen-video; color: 0.1 0.9 0.1;"
         position="0 0.1 0"
         rotation="-90 0 90"
         width="1.6"
         height="0.9">
       </a-plane>
+
     </a-marker>
 
+    <!-- Camera Entity -->
     <a-entity camera></a-entity>
   </a-scene>
 
   <script>
-    // Custom component optimized for A-Frame 1.6.0 & Three.js texture updates
-    AFRAME.registerComponent('video-texture', {
-      init: function () {
-        this.videoEl = document.querySelector('#ar-video');
-        
-        // Create Three.js Video Texture
-        this.texture = new THREE.VideoTexture(this.videoEl);
-        this.texture.minFilter = THREE.LinearFilter;
-        this.texture.magFilter = THREE.LinearFilter;
-        this.texture.colorSpace = THREE.SRGBColorSpace; // Updated color space handling for A-Frame 1.6.0
-
-        this.material = new THREE.MeshBasicMaterial({
-          map: this.texture,
-          side: THREE.DoubleSide
-        });
-
-        // Wait for A-Frame 1.6.0 to build the internal mesh geometry
-        this.el.addEventListener('object3dset', (evt) => {
-          if (evt.detail.type === 'mesh') {
-            evt.detail.object.material = this.material;
-          }
-        });
-
-        // Apply immediately if mesh is already constructed
-        const mesh = this.el.getObject3D('mesh');
-        if (mesh) {
-          mesh.material = this.material;
-        }
-      },
-      
-      tick: function () {
-        // Ensure texture frame updates when video plays
-        if (this.videoEl && this.videoEl.readyState >= this.videoEl.HAVE_CURRENT_DATA) {
-          this.texture.needsUpdate = true;
-        }
-      }
-    });
-
     const overlay = document.getElementById('start-overlay');
     const startBtn = document.getElementById('start-btn');
-    const video = document.getElementById('ar-video');
+    const video = document.getElementById('greenscreen-video');
     const marker = document.getElementById('barcode-marker');
 
+    // 1. Unlock Web Audio & Video on user click
     startBtn.addEventListener('click', () => {
       overlay.style.display = 'none';
-      video.play().catch(e => console.error("Video play error:", e));
+      video.play();
+      video.pause(); // Pre-load and pause until marker is detected
     });
 
+    // 2. Play video when marker is detected
     marker.addEventListener('markerFound', () => {
-      if (video.paused) {
-        video.play();
-      }
+      video.play();
     });
 
+    // 3. Pause video when marker leaves camera view
     marker.addEventListener('markerLost', () => {
       video.pause();
     });
