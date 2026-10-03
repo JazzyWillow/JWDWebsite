@@ -66,8 +66,7 @@
   <!-- A-Frame AR Scene Configured for Barcode Markers -->
   <a-scene
     embedded
-    arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-    vr-mode-ui="enabled: false">
+    arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; smooth: true; smoothCount: 10; smoothTolerance: 0.01; smoothThreshold: 2;"vr-mode-ui="enabled: false">
 
     <a-assets>
       <!-- Preload the Green Screen MP4 Video -->
