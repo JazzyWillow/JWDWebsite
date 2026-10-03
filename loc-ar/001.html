@@ -3,18 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NFC AR Clue - Green Screen 2</title>
+  <title>NFC AR Clue - Camera Anchored</title>
   
-  <!-- A-Frame and AR.js Libraries -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-  <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
-  
-  <!-- A-Frame Chroma Key Shader for Green Screen Removal -->
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
   <script src="https://unpkg.com/aframe-chromakey-material/dist/aframe-chromakey-material.min.js"></script>
 
   <style>
-    /* Fullscreen UI Overlay to satisfy mobile browser autoplay policy */
     #start-overlay {
       position: fixed;
       top: 0;
@@ -46,30 +41,20 @@
 </head>
 <body style="margin: 0; overflow: hidden;">
 
-  <!-- ========================================================= -->
-  <!-- CONFIGURATION VARIABLES (Edit these for each NFC page)     -->
-  <!-- ========================================================= -->
   <script>
     const CONFIG = {
-      videoSrc: 'assets/specimen001.mp4', // Fixed typo (specimen001.mp4)
-      latitude: 28.310221,                
-      longitude: -82.671417,               
-      
-      // Material & Positioning
-      chromaColor: '0.1 0.9 0.1',  // Green screen key color RGB (0.0 to 1.0 scale)
-      position: '0 0.1 0',        // Relative position
-      rotation: '0 0 0',           // Rotation (0 0 0 keeps video facing upright)
-      scale: '3 3 3',           // Scale multiplier
-      width: 1.6,                  // Width of plane
-      height: 0.9                  // Height of plane
+      videoSrc: 'assets/specimen001.mp4', 
+      chromaColor: '0.1 0.9 0.1', 
+      position: '0 0 -3',        // Directly 3 meters in front of user's eye level
+      scale: '1.6 0.9 1',         // Clean 16:9 proportional scale
+      width: 1.6,                  
+      height: 0.9                  
     };
   </script>
-  <!-- ========================================================= -->
 
-  <!-- Tap-to-Start Screen -->
   <div id="start-overlay">
     <h2>Tap to Start AR</h2>
-    <p>Camera and video access required</p>
+    <p>Camera access required</p>
     <button id="start-btn">Start Experience</button>
   </div>
 
@@ -79,7 +64,6 @@
     arjs="sourceType: webcam; debugUIEnabled: false;">
 
     <a-assets>
-      <!-- Green screen video asset -->
       <video 
         id="greenscreen-video" 
         preload="auto" 
@@ -91,59 +75,40 @@
       </video>
     </a-assets>
 
-    <!-- Camera element with explicit ID -->
-    <a-camera 
-      id="main-camera"
-      gps-camera="minDistance: 1; positionMinAccuracy: 1000; alert: false;" 
-      rotation-reader>
-    </a-camera>
-
-    <!-- Parent GPS Entity (Anchors scene to target lat/long) -->
-    <a-entity id="ar-location-node">
-      
-      <!-- Child Plane with Chromakey Shader & Look-At targeting main camera -->
+    <!-- Camera element -->
+    <a-camera id="main-camera">
+      <!-- Child Plane mounted inside camera coordinate space -->
       <a-plane 
-        id="clue-plane"
-        look-at="#main-camera">
+        id="clue-plane">
       </a-plane>
-
-    </a-entity>
+    </a-camera>
 
   </a-scene>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const videoEl = document.querySelector('#greenscreen-video');
-      const locationNode = document.querySelector('#ar-location-node');
       const planeEl = document.querySelector('#clue-plane');
       const overlay = document.querySelector('#start-overlay');
       const startBtn = document.querySelector('#start-btn');
 
-      // Set video source
       videoEl.setAttribute('src', CONFIG.videoSrc);
 
-      // Set GPS location on the parent node
-      locationNode.setAttribute('gps-entity-place', `latitude: ${CONFIG.latitude}; longitude: ${CONFIG.longitude};`);
-
-      // Apply transforms and chromakey shader to child plane
+      // Lock plane to local camera transform
       planeEl.setAttribute('material', `shader: chromakey; src: #greenscreen-video; color: ${CONFIG.chromaColor};`);
       planeEl.setAttribute('position', CONFIG.position);
-      planeEl.setAttribute('rotation', CONFIG.rotation);
       planeEl.setAttribute('scale', CONFIG.scale);
       planeEl.setAttribute('width', CONFIG.width);
       planeEl.setAttribute('height', CONFIG.height);
 
-      // Start experience on user interaction
-      const startExperience = () => {
+      startBtn.addEventListener('click', () => {
         videoEl.muted = false;
         videoEl.play().then(() => {
           overlay.style.display = 'none';
         }).catch((err) => {
           console.warn('Playback failed:', err);
         });
-      };
-
-      startBtn.addEventListener('click', startExperience);
+      });
     });
   </script>
 </body>
