@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>AR - Tracking Test</title>
+  <title>Test 645</title>
 
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
@@ -56,10 +56,6 @@
       debugUIEnabled: false;
       detectionMode: mono_and_matrix;
       matrixCodeType: 3x3;
-      smooth: true;
-      smoothCount: 10;
-      smoothTolerance: 0.01;
-      smoothThreshold: 5;
       maxDetectionRate: 60;
       canvasWidth: 640;
       canvasHeight: 480;
@@ -82,16 +78,16 @@
       value="2"
       id="barcode-marker"
       smooth="true"
-      smoothCount="10"
+      smoothCount="20"
       smoothTolerance="0.01"
-      smoothThreshold="5">
+      smoothThreshold="10">
 
       <a-plane
         material="shader: chromakey; src: #greenscreen-video; color: 0.1 0.9 0.1;"
-        position="0 .1 0"
+        position="0 0.1 0"
         rotation="-90 0 0"
-        width="5"
-        height="2.8125">
+        width="8"
+        height="4.5">
       </a-plane>
 
     </a-marker>
