@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>ARTest 10</title>
+  <title>ARTest 11</title>
 
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
@@ -18,8 +18,11 @@
   <style>
     #start-overlay {
       position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.85);
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.85);
       z-index: 9999;
       display: flex;
       flex-direction: column;
@@ -33,111 +36,114 @@
       padding: 15px 30px;
       font-size: 18px;
       font-weight: bold;
-      color: white;
-      background: #007bff;
-      border: 0;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
       border-radius: 8px;
+      cursor: pointer;
       margin-top: 20px;
     }
   </style>
 </head>
 
-<body style="margin:0; overflow:hidden;">
+<body style="margin: 0; overflow: hidden;">
 
-<div id="start-overlay">
-  <h2>Tap to Start AR</h2>
-  <p>Camera and video access required</p>
-  <button id="start-btn">Start Experience</button>
-</div>
+  <div id="start-overlay">
+    <h2>Tap to Start AR</h2>
+    <p>Camera and video access required</p>
+    <button id="start-btn">Start Experience</button>
+  </div>
 
-<a-scene
-  embedded
-  arjs="
-    sourceType: webcam;
-    debugUIEnabled: false;
-    detectionMode: mono_and_matrix;
-    matrixCodeType: 3x3;
-  "
-  vr-mode-ui="enabled:false">
+  <a-scene
+    embedded
+    arjs="
+      sourceType: webcam;
+      debugUIEnabled: false;
+      detectionMode: mono_and_matrix;
+      matrixCodeType: 3x3;
+    "
+    vr-mode-ui="enabled: false">
 
-  <a-assets>
-    <video
-      id="greenscreen-video"
-      src="assets/specimen001.mp4"
-      loop
-      muted
-      playsinline
-      webkit-playsinline
-      crossorigin="anonymous">
-    </video>
-  </a-assets>
+    <a-assets>
+      <video
+        id="greenscreen-video"
+        src="assets/specimen001.mp4"
+        loop
+        muted
+        playsinline
+        webkit-playsinline
+        crossorigin="anonymous">
+      </video>
+    </a-assets>
 
-  <a-marker
-    type="barcode"
-    value="2"
-    size="0.03175"
-    id="barcode-marker"
-    smooth="false">
+    <a-marker
+      type="barcode"
+      value="2"
+      size="0.03175"
+      id="barcode-marker"
+      smooth="true"
+      smoothCount="30"
+      smoothTolerance="0.02"
+      smoothThreshold="10">
 
-    <a-plane
-      material="shader: chromakey; src: #greenscreen-video; color: 0.1 0.9 0.1;"
-      position="0 0.001 0"
-      rotation="-90 0 0"
-      width="0.4"
-      height="0.225">
-    </a-plane>
+      <a-plane
+        material="shader: chromakey; src: #greenscreen-video; color: 0.1 0.9 0.1;"
+        position="0 0.1 0"
+        rotation="-90 0 0"
+        width="0.50"
+        height="0.28125">
+      </a-plane>
 
-  </a-marker>
+    </a-marker>
 
-  <a-entity camera></a-entity>
+    <a-entity camera></a-entity>
 
-</a-scene>
+  </a-scene>
 
-<script>
-  const overlay = document.getElementById('start-overlay');
-  const startBtn = document.getElementById('start-btn');
-  const video = document.getElementById('greenscreen-video');
-  const marker = document.getElementById('barcode-marker');
+  <script>
+    const overlay = document.getElementById('start-overlay');
+    const startBtn = document.getElementById('start-btn');
+    const video = document.getElementById('greenscreen-video');
+    const marker = document.getElementById('barcode-marker');
 
-  let lostTimeout = null;
+    let lostTimeout = null;
 
-  startBtn.addEventListener('click', async () => {
-    overlay.style.display = 'none';
+    startBtn.addEventListener('click', () => {
+      overlay.style.display = 'none';
 
-    video.muted = true;
+      video.muted = true;
 
-    try {
-      await video.play();
-      video.pause();
-      video.currentTime = 0;
-    } catch (e) {
-      console.log('Video unlock error:', e);
-    }
-  });
-
-  marker.addEventListener('markerFound', () => {
-    console.log('MARKER FOUND');
-
-    if (lostTimeout) {
-      clearTimeout(lostTimeout);
-      lostTimeout = null;
-    }
-
-    video.muted = true;
-
-    video.play().catch(e => {
-      console.log('Video play error:', e);
+      video.play().then(() => {
+        video.pause();
+        video.currentTime = 0;
+      }).catch(error => {
+        console.log('Video unlock error:', error);
+      });
     });
-  });
 
-  marker.addEventListener('markerLost', () => {
-    console.log('MARKER LOST');
+    marker.addEventListener('markerFound', () => {
+      console.log('MARKER FOUND');
 
-    lostTimeout = setTimeout(() => {
-      video.pause();
-    }, 500);
-  });
-</script>
+      if (lostTimeout) {
+        clearTimeout(lostTimeout);
+        lostTimeout = null;
+      }
+
+      video.muted = true;
+
+      video.play().catch(error => {
+        console.log('Video play error:', error);
+      });
+    });
+
+    marker.addEventListener('markerLost', () => {
+      console.log('MARKER LOST');
+
+      lostTimeout = setTimeout(() => {
+        video.pause();
+      }, 500);
+    });
+  </script>
 
 </body>
 </html>
