@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>ARTest 12</title>
+  <title>ARTest 13</title>
 
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
@@ -22,7 +22,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: black;
+      background: transparent;
     }
 
     #start-overlay {
@@ -98,6 +98,14 @@
       border: 2px solid white;
       border-radius: 10px;
     }
+
+    canvas.a-canvas {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+    }
   </style>
 </head>
 
@@ -126,6 +134,7 @@
   <a-scene
     id="ar-scene"
     embedded
+    renderer="antialias: true; alpha: true; precision: medium;"
     arjs="
       sourceType: webcam;
       debugUIEnabled: false;
@@ -161,7 +170,7 @@
         position="0 0.1 0"
         rotation="-90 0 0"
         width="0.50"
-        height="0.28125">
+        height="0.88889">
       </a-plane>
 
     </a-marker>
@@ -176,7 +185,6 @@
     const fallbackBtn = document.getElementById('fallback-btn');
     const fallbackScreen = document.getElementById('fallback-screen');
     const fallbackVideo = document.getElementById('fallback-video');
-    const backToAR = document.getElementById('back-to-ar');
 
     const arScene = document.getElementById('ar-scene');
     const video = document.getElementById('greenscreen-video');
@@ -230,19 +238,21 @@
         lostTimeout = null;
       }
 
-      const stream = arScene.components['arjs']
-        ?.arToolkitSource
-        ?.domElement
-        ?.srcObject;
+      const arjsComponent = arScene.components['arjs'];
 
-      if (stream && stream.getTracks) {
-        stream.getTracks().forEach(track => track.stop());
-      }
+      if (arjsComponent && arjsComponent.arToolkitSource) {
+        const source = arjsComponent.arToolkitSource;
+        const sourceElement = source.domElement;
 
-      const cameraVideo = document.querySelector('video[autoplay]');
-      if (cameraVideo && cameraVideo.srcObject) {
-        cameraVideo.srcObject.getTracks().forEach(track => track.stop());
-        cameraVideo.srcObject = null;
+        if (sourceElement && sourceElement.srcObject) {
+          sourceElement.srcObject.getTracks().forEach(track => track.stop());
+          sourceElement.srcObject = null;
+        }
+
+        if (sourceElement) {
+          sourceElement.pause();
+          sourceElement.src = '';
+        }
       }
 
       arScene.style.display = 'none';
@@ -250,8 +260,6 @@
       overlay.style.display = 'none';
 
       fallbackScreen.style.display = 'flex';
-
-      fallbackVideo.muted = false;
 
       try {
         await fallbackVideo.play();
@@ -266,7 +274,7 @@
       }
     });
 
-    backToAR.addEventListener('click', () => {
+    document.getElementById('back-to-ar').addEventListener('click', () => {
       if (document.fullscreenElement) {
         document.exitFullscreen().catch(() => {});
       }
