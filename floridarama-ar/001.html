@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>ARTest 11</title>
+  <title>ARTest 12</title>
 
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
@@ -16,12 +16,18 @@
   <script src="https://unpkg.com/aframe-chromakey-material/dist/aframe-chromakey-material.min.js"></script>
 
   <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: black;
+    }
+
     #start-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      inset: 0;
       background-color: rgba(0, 0, 0, 0.85);
       z-index: 9999;
       display: flex;
@@ -43,10 +49,59 @@
       cursor: pointer;
       margin-top: 20px;
     }
+
+    #fallback-btn {
+      position: fixed;
+      left: 50%;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      z-index: 10000;
+      padding: 14px 22px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background: rgba(0, 0, 0, 0.75);
+      border: 2px solid white;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    #fallback-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 20000;
+      background: black;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #fallback-video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      display: block;
+    }
+
+    #back-to-ar {
+      position: fixed;
+      left: 50%;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      z-index: 20001;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: bold;
+      color: white;
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid white;
+      border-radius: 10px;
+    }
   </style>
 </head>
 
-<body style="margin: 0; overflow: hidden;">
+<body>
 
   <div id="start-overlay">
     <h2>Tap to Start AR</h2>
@@ -54,7 +109,22 @@
     <button id="start-btn">Start Experience</button>
   </div>
 
+  <button id="fallback-btn">Can't Use AR? Watch Video</button>
+
+  <div id="fallback-screen">
+    <video
+      id="fallback-video"
+      src="assets/specimen001.mp4"
+      playsinline
+      webkit-playsinline
+      controls>
+    </video>
+
+    <button id="back-to-ar">Back to AR</button>
+  </div>
+
   <a-scene
+    id="ar-scene"
     embedded
     arjs="
       sourceType: webcam;
@@ -67,7 +137,7 @@
     <a-assets>
       <video
         id="greenscreen-video"
-        src="assets/specimen001.mp4"
+        src="assets/specimen001ar.mp4"
         loop
         muted
         playsinline
@@ -103,6 +173,12 @@
   <script>
     const overlay = document.getElementById('start-overlay');
     const startBtn = document.getElementById('start-btn');
+    const fallbackBtn = document.getElementById('fallback-btn');
+    const fallbackScreen = document.getElementById('fallback-screen');
+    const fallbackVideo = document.getElementById('fallback-video');
+    const backToAR = document.getElementById('back-to-ar');
+
+    const arScene = document.getElementById('ar-scene');
     const video = document.getElementById('greenscreen-video');
     const marker = document.getElementById('barcode-marker');
 
@@ -142,6 +218,67 @@
       lostTimeout = setTimeout(() => {
         video.pause();
       }, 500);
+    });
+
+    fallbackBtn.addEventListener('click', async () => {
+      console.log('Switching to fallback video');
+
+      video.pause();
+
+      if (lostTimeout) {
+        clearTimeout(lostTimeout);
+        lostTimeout = null;
+      }
+
+      const stream = arScene.components['arjs']
+        ?.arToolkitSource
+        ?.domElement
+        ?.srcObject;
+
+      if (stream && stream.getTracks) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+
+      const cameraVideo = document.querySelector('video[autoplay]');
+      if (cameraVideo && cameraVideo.srcObject) {
+        cameraVideo.srcObject.getTracks().forEach(track => track.stop());
+        cameraVideo.srcObject = null;
+      }
+
+      arScene.style.display = 'none';
+      fallbackBtn.style.display = 'none';
+      overlay.style.display = 'none';
+
+      fallbackScreen.style.display = 'flex';
+
+      fallbackVideo.muted = false;
+
+      try {
+        await fallbackVideo.play();
+
+        if (fallbackScreen.requestFullscreen) {
+          await fallbackScreen.requestFullscreen();
+        } else if (fallbackScreen.webkitRequestFullscreen) {
+          fallbackScreen.webkitRequestFullscreen();
+        }
+      } catch (error) {
+        console.log('Fallback video error:', error);
+      }
+    });
+
+    backToAR.addEventListener('click', () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+
+      fallbackVideo.pause();
+      fallbackVideo.currentTime = 0;
+
+      fallbackScreen.style.display = 'none';
+      arScene.style.display = '';
+      fallbackBtn.style.display = 'block';
+
+      overlay.style.display = 'flex';
     });
   </script>
 
