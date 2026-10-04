@@ -3,15 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>MindAR Test 3</title>
+  <title>MindAR Test 4</title>
 
-  <!-- A-Frame & MindAR -->
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <!-- 1. A-Frame 1.6.0 -->
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+  <!-- 2. MindAR for A-Frame -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <!-- 3. Chroma Key Shader Component for Green Screen Removal -->
   <script src="https://unpkg.com/aframe-chromakey-material/dist/aframe-chromakey-material.min.js"></script>
 
   <style>
-    /* Prevent scrollbars & white background gaps */
+    /* Prevent document scrollbars & ensure full viewport coverage */
     html, body {
       margin: 0;
       padding: 0;
@@ -21,7 +25,7 @@
       background-color: #000;
     }
 
-    /* Force full-screen video and WebGL canvas execution */
+    /* Force the canvas/camera stream full screen to prevent white margins */
     a-scene, a-canvas, video {
       position: absolute !important;
       top: 0 !important;
@@ -32,7 +36,7 @@
       padding: 0 !important;
     }
 
-    /* Hide Eruda mobile console white bar at bottom */
+    /* Hide Eruda container & white bottom bar */
     #eruda, .eruda-container {
       display: none !important;
     }
@@ -40,63 +44,71 @@
     /* Fullscreen tap-to-start overlay */
     #start-overlay {
       position: fixed;
-      top: 0; 
-      left: 0; 
-      width: 100vw; 
+      top: 0;
+      left: 0;
+      width: 100vw;
       height: 100vh;
       background-color: rgba(0, 0, 0, 0.85);
       z-index: 99999;
-      display: flex; 
-      flex-direction: column; 
-      justify-content: center; 
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      color: white; 
+      color: white;
       font-family: sans-serif;
     }
 
     #start-btn {
-      padding: 15px 30px; 
-      font-size: 18px; 
+      padding: 15px 30px;
+      font-size: 18px;
       font-weight: bold;
-      color: #fff; 
-      background-color: #007bff; 
-      border: none; 
+      color: #fff;
+      background-color: #007bff;
+      border: none;
       border-radius: 8px;
-      cursor: pointer; 
+      cursor: pointer;
       margin-top: 20px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Tap to Start -->
+  <!-- Tap-to-Start Screen -->
   <div id="start-overlay">
     <h2>Tap to Start AR</h2>
     <p>Camera and video access required</p>
     <button id="start-btn">Start Experience</button>
   </div>
 
-  <!-- uiScanning enabled brings back scanning guide; uiLoading: no disables loading overlay -->
-  <a-scene 
-    mindar-image="imageTargetSrc: ./assets/targets.mind; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no; uiScanning: yes;" 
-    embedded 
-    color-space="sRGB" 
-    renderer="colorManagement: true, physicallyCorrectLights" 
-    vr-mode-ui="enabled: false" 
+  <!-- MindAR Scene Configured for Low Jitter -->
+  <a-scene
+    mindar-image="imageTargetSrc: targets.mind; filterMinCF: 0.0001; filterBeta: 0.001; uiLoading: no; uiScanning: yes;"
+    embedded
+    color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights"
+    vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false">
-    
+
     <a-assets>
-      <video id="greenscreen-video" src="assets/specimen001.mp4" loop="true" crossorigin="anonymous" playsinline webkit-playsinline></video>
+      <video
+        id="greenscreen-video"
+        src="assets/specimen001.mp4"
+        loop="true"
+        crossorigin="anonymous"
+        playsinline
+        webkit-playsinline>
+      </video>
     </a-assets>
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
+    <!-- Target Anchor (index 0 matches target in targets.mind) -->
     <a-entity mindar-image-target="targetIndex: 0" id="target-anchor">
-      <a-plane 
-        material="shader: chromakey; src: #greenscreen-video; color: 0.1 0.9 0.1;" 
-        position="0 0 0" 
-        height="0.5625" 
-        width="1" 
+      <a-plane
+        material="shader: chromakey; src: #greenscreen-video; color: 0.1 0.9 0.1;"
+        position="0 0 0"
+        height="0.9"
+        width="1.6"
         rotation="0 0 0">
       </a-plane>
     </a-entity>
@@ -108,18 +120,30 @@
     const video = document.getElementById('greenscreen-video');
     const targetAnchor = document.getElementById('target-anchor');
 
+    let lostTimeout = null;
+
+    // Unlock Web Audio & Video on user click
     startBtn.addEventListener('click', () => {
       overlay.style.display = 'none';
       video.play().then(() => video.pause());
     });
 
+    // Instant play when target is found
     targetAnchor.addEventListener('targetFound', () => {
+      if (lostTimeout) {
+        clearTimeout(lostTimeout);
+        lostTimeout = null;
+      }
       video.play();
     });
 
+    // Debounced pause to prevent video stuttering on brief frame drops
     targetAnchor.addEventListener('targetLost', () => {
-      video.pause();
+      lostTimeout = setTimeout(() => {
+        video.pause();
+      }, 500);
     });
   </script>
+
 </body>
 </html>
