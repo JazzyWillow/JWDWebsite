@@ -2,126 +2,86 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>FloridaRAMA AR Test - Transparent Video Fix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindAR Test 1</title>
 
-  <!-- Eruda mobile console -->
-  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-  <script>eruda.init();</script>
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 
-  <!-- A-Frame 1.6.0 -->
-  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <!-- MindAR for A-Frame (Non-AI Image Tracking) -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-  <!-- AR.js for A-Frame -->
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-
-  <!-- Chroma Key Shader Component -->
+  <!-- Chromakey Shader for Green Screen -->
   <script src="https://unpkg.com/aframe-chromakey-material/dist/aframe-chromakey-material.min.js"></script>
 
   <style>
     #start-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      top: 0; left: 0; width: 100vw; height: 100vh;
       background-color: rgba(0, 0, 0, 0.85);
       z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-family: sans-serif;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      color: white; font-family: sans-serif;
     }
-
     #start-btn {
-      padding: 15px 30px;
-      font-size: 18px;
-      font-weight: bold;
-      color: #fff;
-      background-color: #007bff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 20px;
+      padding: 15px 30px; font-size: 18px; font-weight: bold;
+      color: #fff; background-color: #007bff; border: none; border-radius: 8px;
+      cursor: pointer; margin-top: 20px;
     }
   </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
 
-  <!-- Tap-to-Start Screen -->
   <div id="start-overlay">
     <h2>Tap to Start AR</h2>
-    <p>Camera and video access required</p>
     <button id="start-btn">Start Experience</button>
   </div>
 
-  <!-- Smoothed A-Frame AR Scene Config -->
-  <a-scene
-    embedded
-    arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; smooth: true; smoothCount: 10; smoothTolerance: 0.05; smoothThreshold: 5;"
-    vr-mode-ui="enabled: false">
-
+  <!-- MindAR Scene -->
+  <a-scene 
+    mindar-image="imageTargetSrc: targets.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
+    embedded 
+    color-space="sRGB" 
+    renderer="colorManagement: true, physicallyCorrectLights" 
+    vr-mode-ui="enabled: false" 
+    device-orientation-permission-ui="enabled: false">
+    
     <a-assets>
-      <video
-        id="greenscreen-video"
-        src="assets/specimen001.mp4"
-        loop="true"
-        crossorigin="anonymous"
-        playsinline
-        webkit-playsinline>
-      </video>
+      <video id="greenscreen-video" src="assets/specimen001.mp4" loop="true" crossorigin="anonymous" playsinline webkit-playsinline></video>
     </a-assets>
 
-    <!-- Barcode Marker (Value 2) -->
-    <a-marker type="barcode" value="2" id="barcode-marker">
-      
-      <!-- Normalized scale to prevent jitter amplification -->
-      <a-plane
-        material="shader: chromakey; src: #greenscreen-video; color: 0.1 0.9 0.1;"
-        position="0 .1 -3"
-        rotation="-90 0 0"
-        width="16"
-        height="9">
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <!-- Target index 0 matches the first image in targets.mind -->
+    <a-entity mindar-image-target="targetIndex: 0" id="target-anchor">
+      <a-plane 
+        material="shader: chromakey; src: #greenscreen-video; color: 0.1 0.9 0.1;" 
+        position="0 0 0" 
+        height="0.5625" 
+        width="1" 
+        rotation="0 0 0">
       </a-plane>
-
-    </a-marker>
-
-    <!-- Camera Entity -->
-    <a-entity camera></a-entity>
+    </a-entity>
   </a-scene>
 
   <script>
     const overlay = document.getElementById('start-overlay');
     const startBtn = document.getElementById('start-btn');
     const video = document.getElementById('greenscreen-video');
-    const marker = document.getElementById('barcode-marker');
+    const targetAnchor = document.getElementById('target-anchor');
 
-    let lostTimeout = null;
-
-    // Unlock video playback on click
     startBtn.addEventListener('click', () => {
       overlay.style.display = 'none';
       video.play().then(() => video.pause());
     });
 
-    // Instant play when marker is found
-    marker.addEventListener('markerFound', () => {
-      if (lostTimeout) {
-        clearTimeout(lostTimeout);
-        lostTimeout = null;
-      }
+    targetAnchor.addEventListener('targetFound', () => {
       video.play();
     });
 
-    // Debounced pause to prevent video stuttering on brief frame drops
-    marker.addEventListener('markerLost', () => {
-      lostTimeout = setTimeout(() => {
-        video.pause();
-      }, 500); // Waits 500ms before pausing video
+    targetAnchor.addEventListener('targetLost', () => {
+      video.pause();
     });
   </script>
-
 </body>
 </html>
