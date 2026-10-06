@@ -1,76 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- A-Frame Library -->
-    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-    <!-- MindAR Image Tracking for A-Frame -->
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>FloridaRAMA Field Research Archives - Specimen 002</title>
 
-    <style>
-      /* Ensure full screen without scrollbars */
-      body { margin: 0; overflow: hidden; }
-    </style>
-  </head>
+  <!-- Debug Console -->
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init();</script>
 
-  <body>
-    <!-- 
-      imageTargetSrc points to your compiled .mind file.
-      uiLoading: false hides default loading overlay if you want custom UI.
-    -->
-    <a-scene 
-      mindar-image="imageTargetSrc: image-targets/targets.mind;" 
-      color-space="sRGB" 
-      renderer="colorManagement: true, physicallyCorrectLights: true" 
-      vr-mode-ui="enabled: false" 
-      device-orientation-permission-ui="enabled: false">
-      
-      <a-assets>
-        <!-- Preload the video element -->
-        <video 
-          id="specimen-video" 
-          src="assets/specimen001.mp4" 
-          preload="auto" 
-          loop 
-          crossorigin="anonymous" 
-          playsinline 
-          webkit-playsinline>
-        </video>
-      </a-assets>
+  <!-- A-Frame Library -->
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
-      <!-- Camera container -->
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+  <!-- MindAR Image Tracking for A-Frame -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
+  <!-- Chromakey Shader Material -->
+  <script src="https://unpkg.com/aframe-chromakey-material/dist/aframe-chromakey-material.min.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+      font-family: sans-serif;
+    }
+
+    #experience-title {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9000;
+      color: #ffffff;
+      background: rgba(0, 0, 0, 0.75);
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      pointer-events: none;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    #start-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+
+    #start-btn {
+      padding: 15px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    #fallback-btn {
+      position: fixed;
+      left: 50%;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      z-index: 10000;
+      padding: 14px 22px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background: rgba(0, 0, 0, 0.75);
+      border: 2px solid white;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    #fallback-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 20000;
+      background: black;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #fallback-video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      display: block;
+    }
+
+    #back-to-ar {
+      position: fixed;
+      left: 50%;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      z-index: 20001;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: bold;
+      color: white;
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid white;
+      border-radius: 10px;
+    }
+
+    canvas.a-canvas {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="experience-title">FloridaRAMA Archives: Specimen 002</div>
+
+  <div id="start-overlay">
+    <h2>Tap to Start AR</h2>
+    <p>Camera and video access required</p>
+    <button id="start-btn">Start Experience</button>
+  </div>
+
+  <button id="fallback-btn">Can't Use AR? Watch Video</button>
+
+  <div id="fallback-screen">
+    <video
+      id="fallback-video"
+      src="assets/specimen002.mp4"
+      playsinline
+      webkit-playsinline
+      controls>
+    </video>
+
+    <button id="back-to-ar">Back to AR</button>
+  </div>
+
+  <!-- 
+    mindar-image system replaces arjs.
+    autoStart: false prevents camera tracking until the Start button is clicked.
+  -->
+  <a-scene
+    id="ar-scene"
+    mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;"
+    embedded
+    renderer="antialias: true; alpha: true; precision: medium;"
+    color-space="sRGB"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
+
+    <a-assets>
+      <video
+        id="greenscreen-video"
+        src="assets/specimen002ar.mp4"
+        loop
+        muted
+        playsinline
+        webkit-playsinline
+        crossorigin="anonymous">
+      </video>
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <!-- targetIndex: 0 corresponds to your compiled Specimen 002 tag in targets.mind -->
+    <!-- Target Index 0 corresponds to your compiled Specimen 002 tag in targets.mind -->
+    <a-entity mindar-image-target="targetIndex: 0" id="tag-target">
       <!-- 
-        targetIndex: 0 maps to the first image inside your targets.mind file.
-        Adjust width/height ratios on <a-video> to match your video's aspect ratio.
+        Adjusted plane dimensions for 9:16 portrait video (1080x1920).
+        If the video appears upside down or sideways, adjust rotation (e.g., rotation="0 0 90").
       -->
-      <a-entity mindar-image-target="targetIndex: 0" id="tag-target">
-        <a-video 
-          src="#specimen-video" 
-          width="1" 
-          height="0.5625" 
-          position="0 0 0" 
-          rotation="0 0 0">
-        </a-video>
-      </a-entity>
+      <a-plane
+        material="shader: chromakey; src: #greenscreen-video; color: 0.1 0.9 0.1;"
+        position="0 0 0"
+        rotation="0 0 0"
+        width="1"
+        height="1.7778">
+      </a-plane>
+    </a-entity>
 
-    </a-scene>
+  </a-scene>
 
-    <script>
-      // Video Autoplay/Pause logic linked to MindAR target detection
-      const tagTarget = document.querySelector('#tag-target');
-      const video = document.querySelector('#specimen-video');
+  <script>
+    const overlay = document.getElementById('start-overlay');
+    const startBtn = document.getElementById('start-btn');
+    const fallbackBtn = document.getElementById('fallback-btn');
+    const fallbackScreen = document.getElementById('fallback-screen');
+    const fallbackVideo = document.getElementById('fallback-video');
 
-      tagTarget.addEventListener("targetFound", () => {
-        video.play().catch((err) => {
-          console.log("Autoplay prevented or waiting for interaction:", err);
-        });
-      });
+    const arScene = document.getElementById('ar-scene');
+    const video = document.getElementById('greenscreen-video');
+    const target = document.getElementById('tag-target');
 
-      tagTarget.addEventListener("targetLost", () => {
+    let lostTimeout = null;
+
+    // Start AR Session on Click
+    startBtn.addEventListener('click', () => {
+      overlay.style.display = 'none';
+
+      // Prime and unlock inline video playback on mobile
+      video.muted = true;
+      video.play().then(() => {
         video.pause();
+        video.currentTime = 0;
+      }).catch(error => {
+        console.log('Video unlock error:', error);
       });
-    </script>
-  </body>
+
+      // Start MindAR Engine
+      arScene.systems["mindar-image-system"].start();
+    });
+
+    // Target Found Trigger
+    target.addEventListener('targetFound', () => {
+      console.log('TARGET FOUND');
+
+      if (lostTimeout) {
+        clearTimeout(lostTimeout);
+        lostTimeout = null;
+      }
+
+      video.muted = true;
+      video.play().catch(error => {
+        console.log('Video play error:', error);
+      });
+    });
+
+    // Target Lost Trigger
+    target.addEventListener('targetLost', () => {
+      console.log('TARGET LOST');
+
+      lostTimeout = setTimeout(() => {
+        video.pause();
+      }, 500);
+    });
+
+    // Fallback Video Switcher
+    fallbackBtn.addEventListener('click', async () => {
+      console.log('Switching to fallback video');
+
+      video.pause();
+
+      if (lostTimeout) {
+        clearTimeout(lostTimeout);
+        lostTimeout = null;
+      }
+
+      // Stop camera stream via MindAR system
+      if (arScene.systems["mindar-image-system"]) {
+        arScene.systems["mindar-image-system"].stop();
+      }
+
+      arScene.style.display = 'none';
+      fallbackBtn.style.display = 'none';
+      overlay.style.display = 'none';
+
+      fallbackScreen.style.display = 'flex';
+
+      try {
+        await fallbackVideo.play();
+
+        if (fallbackScreen.requestFullscreen) {
+          await fallbackScreen.requestFullscreen();
+        } else if (fallbackScreen.webkitRequestFullscreen) {
+          fallbackScreen.webkitRequestFullscreen();
+        }
+      } catch (error) {
+        console.log('Fallback video error:', error);
+      }
+    });
+
+    // Return to AR from Fallback
+    document.getElementById('back-to-ar').addEventListener('click', () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+
+      fallbackVideo.pause();
+      fallbackVideo.currentTime = 0;
+
+      fallbackScreen.style.display = 'none';
+      arScene.style.display = '';
+      fallbackBtn.style.display = 'block';
+
+      overlay.style.display = 'flex';
+    });
+  </script>
+
+</body>
 </html>
