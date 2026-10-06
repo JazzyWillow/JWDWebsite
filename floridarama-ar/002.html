@@ -153,8 +153,8 @@
   </div>
 
   <!-- 
-    mindar-image system replaces arjs.
-    autoStart: false prevents camera tracking until the Start button is clicked.
+    MindAR Image Scene
+    autoStart: false keeps tracking off until user taps Start
   -->
   <a-scene
     id="ar-scene"
@@ -179,15 +179,14 @@
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <!-- targetIndex: 0 corresponds to your compiled Specimen 002 tag in targets.mind -->
-    <!-- Target Index 0 corresponds to your compiled Specimen 002 tag in targets.mind -->
+    <!-- targetIndex: 0 maps to Specimen 002 in your targets.mind file -->
     <a-entity mindar-image-target="targetIndex: 0" id="tag-target">
       <!-- 
-        Adjusted plane dimensions for 9:16 portrait video (1080x1920).
-        If the video appears upside down or sideways, adjust rotation (e.g., rotation="0 0 90").
+        Portrait 1080x1920 plane dimensions (width=1, height=1.7778)
+        Chromakey set to standard green hex (#00FF00)
       -->
       <a-plane
-        material="shader: chromakey; src: #greenscreen-video; color: 0.1 0.9 0.1;"
+        material="shader: chromakey; src: #greenscreen-video; color: #00FF00;"
         position="0 0 0"
         rotation="0 0 0"
         width="1"
@@ -210,11 +209,11 @@
 
     let lostTimeout = null;
 
-    // Start AR Session on Click
+    // Start AR Session
     startBtn.addEventListener('click', () => {
       overlay.style.display = 'none';
 
-      // Prime and unlock inline video playback on mobile
+      // Prime video element to allow iOS/Android video autoplay
       video.muted = true;
       video.play().then(() => {
         video.pause();
@@ -223,7 +222,7 @@
         console.log('Video unlock error:', error);
       });
 
-      // Start MindAR Engine
+      // Start MindAR Tracking System
       arScene.systems["mindar-image-system"].start();
     });
 
@@ -259,49 +258,4 @@
 
       if (lostTimeout) {
         clearTimeout(lostTimeout);
-        lostTimeout = null;
-      }
-
-      // Stop camera stream via MindAR system
-      if (arScene.systems["mindar-image-system"]) {
-        arScene.systems["mindar-image-system"].stop();
-      }
-
-      arScene.style.display = 'none';
-      fallbackBtn.style.display = 'none';
-      overlay.style.display = 'none';
-
-      fallbackScreen.style.display = 'flex';
-
-      try {
-        await fallbackVideo.play();
-
-        if (fallbackScreen.requestFullscreen) {
-          await fallbackScreen.requestFullscreen();
-        } else if (fallbackScreen.webkitRequestFullscreen) {
-          fallbackScreen.webkitRequestFullscreen();
-        }
-      } catch (error) {
-        console.log('Fallback video error:', error);
-      }
-    });
-
-    // Return to AR from Fallback
-    document.getElementById('back-to-ar').addEventListener('click', () => {
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      }
-
-      fallbackVideo.pause();
-      fallbackVideo.currentTime = 0;
-
-      fallbackScreen.style.display = 'none';
-      arScene.style.display = '';
-      fallbackBtn.style.display = 'block';
-
-      overlay.style.display = 'flex';
-    });
-  </script>
-
-</body>
-</html>
+        lostTimeout = null
