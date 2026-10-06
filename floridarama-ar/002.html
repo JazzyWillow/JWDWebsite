@@ -26,7 +26,7 @@
     <a-scene 
       mindar-image="imageTargetSrc: image-targets/targets.mind;" 
       color-space="sRGB" 
-      renderer="colorManagement: true, physicallyCorrectLights: true" 
+    renderer="antialias: true; alpha: true; precision: medium;"
       vr-mode-ui="enabled: false" 
       device-orientation-permission-ui="enabled: false">
       
@@ -52,7 +52,7 @@
       <a-entity mindar-image-target="targetIndex: 0" id="tag-target">
         <!-- CHANGE 2: Replaced <a-video> with <a-plane> using chromakey shader -->
         <a-plane 
-          material="shader: chromakey; src: #specimen-video; color: #00FF00;" 
+          material="shader: chromakey; src: #specimen-video; color: 0.1 0.9 0.1;" 
           width="1" 
           height="1.7778" 
           position="0 0 0" 
