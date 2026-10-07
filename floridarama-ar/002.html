@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Test 7</title>
+    <title>Test 8</title>
 
     <!-- A-Frame Library -->
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
@@ -12,18 +12,128 @@
     <!-- CHANGE 1: Chromakey Shader Material -->
     <script src="https://unpkg.com/aframe-chromakey-material/dist/aframe-chromakey-material.min.js"></script>
 
-    <style>
-      /* Ensure full screen without scrollbars */
-      body { margin: 0; overflow: hidden; }
-    </style>
+    
+
+<style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    #start-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    #start-btn {
+      padding: 15px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    #fallback-btn {
+      position: fixed;
+      left: 50%;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      z-index: 10000;
+      padding: 14px 22px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background: rgba(0, 0, 0, 0.75);
+      border: 2px solid white;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    #fallback-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 20000;
+      background: black;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #fallback-video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      display: block;
+    }
+
+    #back-to-ar {
+      position: fixed;
+      left: 50%;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      z-index: 20001;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: bold;
+      color: white;
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid white;
+      border-radius: 10px;
+    }
+
+    canvas.a-canvas {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+    }
+  </style>
+
   </head>
 
   <body>
-    <!-- 
-      imageTargetSrc points to your compiled .mind file.
-      uiLoading: false hides default loading overlay if you want custom UI.
-    -->
+   
+  <div id="start-overlay">
+    <h2>Tap to Start AR</h2>
+    <p>Camera and video access required</p>
+    <button id="start-btn">Start Experience</button>
+  </div>
+
+  <button id="fallback-btn">Can't Use AR? Watch Video</button>
+
+  <div id="fallback-screen">
+    <video
+      id="fallback-video"
+      src="assets/specimen001.mp4"
+      playsinline
+      webkit-playsinline
+      controls>
+    </video>
+
+    <button id="back-to-ar">Back to AR</button>
+  </div>
+
     <a-scene 
+      id="ar-scene"
+      embedded
       mindar-image="imageTargetSrc: image-targets/targets.mind;" 
       color-space="sRGB" 
     renderer="antialias: true; alpha: true; precision: medium;"
@@ -66,16 +176,116 @@
       // Video Autoplay/Pause logic linked to MindAR target detection
       const tagTarget = document.querySelector('#tag-target');
       const video = document.querySelector('#specimen-video');
+      const arScene = document.getElementById('ar-scene');
+      
+      const overlay = document.getElementById('start-overlay');
+      const startBtn = document.getElementById('start-btn');
+      const fallbackBtn = document.getElementById('fallback-btn');
+      const fallbackScreen = document.getElementById('fallback-screen');
+      const fallbackVideo = document.getElementById('fallback-video');
+
+      let lostTimeout = null;
 
       tagTarget.addEventListener("targetFound", () => {
+        console.log('Target Found');
+
+        if (lostTimeout) {
+          clearTimeout(lostTimeout);
+          lostTimeout = null;
+        }
+
+        video.muted = true;
+
         video.play().catch((err) => {
           console.log("Autoplay prevented or waiting for interaction:", err);
         });
       });
 
       tagTarget.addEventListener("targetLost", () => {
-        video.pause();
+        console.log('Target Lost');
+        lostTimeout = setTimeout(() => {
+          video.pause();
+        }, 500);
       });
+
+      
+      startBtn.addEventListener('click', () => {
+        overlay.style.display = 'none';
+
+        video.muted = true;
+
+        video.play().then(() => {
+          video.pause();
+          video.currentTime = 0;
+        }).catch(error => {
+          console.log('Video unlock error:', error);
+        });
+      });
+
+
+      fallbackBtn.addEventListener('click', async () => {
+        console.log('Switching to fallback video');
+
+        video.pause();
+
+        if (lostTimeout) {
+          clearTimeout(lostTimeout);
+          lostTimeout = null;
+        }
+
+        /*const arjsComponent = arScene.components['arjs'];
+
+        if (arjsComponent && arjsComponent.arToolkitSource) {
+          const source = arjsComponent.arToolkitSource;
+          const sourceElement = source.domElement;
+
+          if (sourceElement && sourceElement.srcObject) {
+            sourceElement.srcObject.getTracks().forEach(track => track.stop());
+            sourceElement.srcObject = null;
+          }
+
+          if (sourceElement) {
+            sourceElement.pause();
+            sourceElement.src = '';
+          }
+        }*/
+
+        arScene.style.display = 'none';
+        fallbackBtn.style.display = 'none';
+        overlay.style.display = 'none';
+
+        fallbackScreen.style.display = 'flex';
+
+        try {
+          await fallbackVideo.play();
+
+          if (fallbackScreen.requestFullscreen) {
+            await fallbackScreen.requestFullscreen();
+          } else if (fallbackScreen.webkitRequestFullscreen) {
+            fallbackScreen.webkitRequestFullscreen();
+          }
+        } catch (error) {
+          console.log('Fallback video error:', error);
+        }
+      });
+
+      document.getElementById('back-to-ar').addEventListener('click', () => {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+
+        fallbackVideo.pause();
+        fallbackVideo.currentTime = 0;
+
+        fallbackScreen.style.display = 'none';
+        arScene.style.display = '';
+        fallbackBtn.style.display = 'block';
+
+        overlay.style.display = 'flex';
+      });
+
+
+
     </script>
   </body>
 </html>
