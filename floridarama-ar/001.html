@@ -1,295 +1,275 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>FloridaRAMA Field Research Archives - Specimen 001</title>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-  <script>eruda.init();</script>
+    <title>FloridaRAMA Field Research Archives - Specimen 001</title>
 
-  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <!-- A-Frame Library -->
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <!-- MindAR Image Tracking for A-Frame -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <!-- Chromakey Shader Material -->
+    <script src="https://unpkg.com/aframe-chromakey-material/dist/aframe-chromakey-material.min.js"></script>
 
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: transparent;
+      }
 
-  <script src="https://unpkg.com/aframe-chromakey-material/dist/aframe-chromakey-material.min.js"></script>
+      #start-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-family: sans-serif;
+      }
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: transparent;
-    }
+      #start-btn {
+        padding: 15px 30px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #fff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
 
-    #start-overlay {
-      position: fixed;
-      inset: 0;
-      background-color: rgba(0, 0, 0, 0.85);
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-family: sans-serif;
-    }
+      #fallback-btn {
+        position: fixed;
+        left: 50%;
+        bottom: max(20px, env(safe-area-inset-bottom));
+        transform: translateX(-50%);
+        z-index: 10000;
+        padding: 14px 22px;
+        font-size: 16px;
+        font-weight: bold;
+        color: white;
+        background: rgba(0, 0, 0, 0.75);
+        border: 2px solid white;
+        border-radius: 10px;
+        white-space: nowrap;
+      }
 
-    #start-btn {
-      padding: 15px 30px;
-      font-size: 18px;
-      font-weight: bold;
-      color: #fff;
-      background-color: #007bff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
+      #fallback-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 20000;
+        background: black;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
 
-    #fallback-btn {
-      position: fixed;
-      left: 50%;
-      bottom: max(20px, env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-      z-index: 10000;
-      padding: 14px 22px;
-      font-size: 16px;
-      font-weight: bold;
-      color: white;
-      background: rgba(0, 0, 0, 0.75);
-      border: 2px solid white;
-      border-radius: 10px;
-      white-space: nowrap;
-    }
+      #fallback-video {
+        width: 100vw;
+        height: 100vh;
+        object-fit: contain;
+        display: block;
+      }
 
-    #fallback-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 20000;
-      background: black;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+      #back-to-ar {
+        position: fixed;
+        left: 50%;
+        bottom: max(20px, env(safe-area-inset-bottom));
+        transform: translateX(-50%);
+        z-index: 20001;
+        padding: 12px 20px;
+        font-size: 15px;
+        font-weight: bold;
+        color: white;
+        background: rgba(0, 0, 0, 0.7);
+        border: 2px solid white;
+        border-radius: 10px;
+      }
 
-    #fallback-video {
-      width: 100vw;
-      height: 100vh;
-      object-fit: contain;
-      display: block;
-    }
+      canvas.a-canvas {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+      }
+    </style>
+  </head>
 
-    #back-to-ar {
-      position: fixed;
-      left: 50%;
-      bottom: max(20px, env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-      z-index: 20001;
-      padding: 12px 20px;
-      font-size: 15px;
-      font-weight: bold;
-      color: white;
-      background: rgba(0, 0, 0, 0.7);
-      border: 2px solid white;
-      border-radius: 10px;
-    }
+  <body>
+     <div id="start-overlay">
+      <h2>Tap to Start AR</h2>
+      <p>Camera and video access required</p>
+      <button id="start-btn">Start Experience</button>
+    </div>
 
-    canvas.a-canvas {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-    }
-  </style>
-</head>
+    <button id="fallback-btn">Can't Use AR? Watch Video</button>
 
-<body>
-
-  <div id="start-overlay">
-    <h2>Tap to Start AR</h2>
-    <p>Camera and video access required</p>
-    <button id="start-btn">Start Experience</button>
-  </div>
-
-  <button id="fallback-btn">Can't Use AR? Watch Video</button>
-
-  <div id="fallback-screen">
-    <video
-      id="fallback-video"
-      src="assets/specimen001.mp4"
-      playsinline
-      webkit-playsinline
-      controls>
-    </video>
-
-    <button id="back-to-ar">Back to AR</button>
-  </div>
-
-  <a-scene
-    id="ar-scene"
-    embedded
-    renderer="antialias: true; alpha: true; precision: medium;"
-    arjs="
-      sourceType: webcam;
-      debugUIEnabled: false;
-      detectionMode: mono_and_matrix;
-      matrixCodeType: 3x3;
-    "
-    vr-mode-ui="enabled: false">
-
-    <a-assets>
+    <div id="fallback-screen">
       <video
-        id="greenscreen-video"
-        src="assets/specimen001ar.mp4"
-        loop
-        muted
+        id="fallback-video"
+        src="assets/specimen001.mp4"
         playsinline
         webkit-playsinline
-        crossorigin="anonymous">
+        controls>
       </video>
-    </a-assets>
 
-    <a-marker
-      type="barcode"
-      value="1"
-      size="0.03175"
-      id="barcode-marker"
-      smooth="true"
-      smoothCount="30"
-      smoothTolerance="0.02"
-      smoothThreshold="10">
+      <button id="back-to-ar">Back to AR</button>
+    </div>
 
-      <a-plane
-        material="shader: chromakey; src: #greenscreen-video; color: 0.1 0.9 0.1;"
-        position="0 0.1 0"
-        rotation="-90 0 0"
-        width="16"
-        height="9">
-      </a-plane>
+    <!-- 
+      MindAR built-in smoothing settings:
+      - filterMinCF: lower value reduces jitter on steady targets
+      - filterBeta: lower value dampens motion blur jumps
+      - missTolerance: delays hiding plane for 5 frames to prevent rapid flickering
+    -->
+    <a-scene 
+      id="ar-scene"
+      embedded
+      mindar-image="imageTargetSrc: image-targets/001.mind; filterMinCF: 0.001; filterBeta: 0.05; missTolerance: 20; warmupTolerance: 5;" 
+      color-space="sRGB" 
+      renderer="antialias: true; alpha: true; precision: medium;"
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: false">
+      
+      <a-assets>
+        <video 
+          id="specimen-video" 
+          src="assets/specimen001ar.mp4" 
+          preload="auto" 
+          loop 
+          muted
+          crossorigin="anonymous" 
+          playsinline 
+          webkit-playsinline>
+        </video>
+      </a-assets>
 
-    </a-marker>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <a-entity camera></a-entity>
+      <a-entity mindar-image-target="targetIndex: 0" id="tag-target">
+        <a-plane 
+          material="shader: chromakey; src: #specimen-video; color: 0.1 0.9 0.1;" 
+          width="1" 
+          height="1.7778" 
+          position="0 0 0" 
+          rotation="0 0 0">
+        </a-plane>
+      </a-entity>
+    </a-scene>
 
-  </a-scene>
+    <script>
+      const tagTarget = document.querySelector('#tag-target');
+      const video = document.querySelector('#specimen-video');
+      const arScene = document.getElementById('ar-scene');
+      
+      const overlay = document.getElementById('start-overlay');
+      const startBtn = document.getElementById('start-btn');
+      const fallbackBtn = document.getElementById('fallback-btn');
+      const fallbackScreen = document.getElementById('fallback-screen');
+      const fallbackVideo = document.getElementById('fallback-video');
 
-  <script>
-    const overlay = document.getElementById('start-overlay');
-    const startBtn = document.getElementById('start-btn');
-    const fallbackBtn = document.getElementById('fallback-btn');
-    const fallbackScreen = document.getElementById('fallback-screen');
-    const fallbackVideo = document.getElementById('fallback-video');
+      let lostTimeout = null;
+      let userGestureUnlocked = false;
+      let targetIsFound = false;
 
-    const arScene = document.getElementById('ar-scene');
-    const video = document.getElementById('greenscreen-video');
-    const marker = document.getElementById('barcode-marker');
+      tagTarget.addEventListener("targetFound", () => {
+        console.log('Target Found');
+        targetIsFound = true;
 
-    let lostTimeout = null;
+        if (lostTimeout) {
+          clearTimeout(lostTimeout);
+          lostTimeout = null;
+        }
 
-    startBtn.addEventListener('click', () => {
-      overlay.style.display = 'none';
-
-      video.muted = true;
-
-      video.play().then(() => {
-        video.pause();
-        video.currentTime = 0;
-      }).catch(error => {
-        console.log('Video unlock error:', error);
+        if (userGestureUnlocked) {
+          video.muted = true;
+          video.play().catch((err) => {
+            console.log("Autoplay error on targetFound:", err);
+          });
+        }
       });
-    });
 
-    marker.addEventListener('markerFound', () => {
-      console.log('MARKER FOUND');
-
-      if (lostTimeout) {
-        clearTimeout(lostTimeout);
-        lostTimeout = null;
-      }
-
-      video.muted = true;
-
-      video.play().catch(error => {
-        console.log('Video play error:', error);
+      tagTarget.addEventListener("targetLost", () => {
+        console.log('Target Lost');
+        targetIsFound = false;
+        
+        lostTimeout = setTimeout(() => {
+          video.pause();
+        }, 500);
       });
-    });
 
-    marker.addEventListener('markerLost', () => {
-      console.log('MARKER LOST');
+      startBtn.addEventListener('click', () => {
+        overlay.style.display = 'none';
+        userGestureUnlocked = true;
 
-      lostTimeout = setTimeout(() => {
+        video.muted = true;
+
+        video.play().then(() => {
+          if (!targetIsFound) {
+            video.pause();
+            video.currentTime = 0;
+          }
+        }).catch(error => {
+          console.log('Video unlock error:', error);
+        });
+      });
+
+      fallbackBtn.addEventListener('click', async () => {
+        console.log('Switching to fallback video');
+
         video.pause();
-      }, 500);
-    });
 
-    fallbackBtn.addEventListener('click', async () => {
-      console.log('Switching to fallback video');
-
-      video.pause();
-
-      if (lostTimeout) {
-        clearTimeout(lostTimeout);
-        lostTimeout = null;
-      }
-
-      const arjsComponent = arScene.components['arjs'];
-
-      if (arjsComponent && arjsComponent.arToolkitSource) {
-        const source = arjsComponent.arToolkitSource;
-        const sourceElement = source.domElement;
-
-        if (sourceElement && sourceElement.srcObject) {
-          sourceElement.srcObject.getTracks().forEach(track => track.stop());
-          sourceElement.srcObject = null;
+        if (lostTimeout) {
+          clearTimeout(lostTimeout);
+          lostTimeout = null;
         }
 
-        if (sourceElement) {
-          sourceElement.pause();
-          sourceElement.src = '';
+        arScene.style.display = 'none';
+        fallbackBtn.style.display = 'none';
+        overlay.style.display = 'none';
+
+        fallbackScreen.style.display = 'flex';
+
+        try {
+          await fallbackVideo.play();
+
+          if (fallbackScreen.requestFullscreen) {
+            await fallbackScreen.requestFullscreen();
+          } else if (fallbackScreen.webkitRequestFullscreen) {
+            fallbackScreen.webkitRequestFullscreen();
+          }
+        } catch (error) {
+          console.log('Fallback video error:', error);
         }
-      }
+      });
 
-      arScene.style.display = 'none';
-      fallbackBtn.style.display = 'none';
-      overlay.style.display = 'none';
-
-      fallbackScreen.style.display = 'flex';
-
-      try {
-        await fallbackVideo.play();
-
-        if (fallbackScreen.requestFullscreen) {
-          await fallbackScreen.requestFullscreen();
-        } else if (fallbackScreen.webkitRequestFullscreen) {
-          fallbackScreen.webkitRequestFullscreen();
+      document.getElementById('back-to-ar').addEventListener('click', () => {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
         }
-      } catch (error) {
-        console.log('Fallback video error:', error);
-      }
-    });
 
-    document.getElementById('back-to-ar').addEventListener('click', () => {
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      }
+        fallbackVideo.pause();
+        fallbackVideo.currentTime = 0;
 
-      fallbackVideo.pause();
-      fallbackVideo.currentTime = 0;
+        fallbackScreen.style.display = 'none';
+        arScene.style.display = '';
+        fallbackBtn.style.display = 'block';
 
-      fallbackScreen.style.display = 'none';
-      arScene.style.display = '';
-      fallbackBtn.style.display = 'block';
-
-      overlay.style.display = 'flex';
-    });
-  </script>
-
-</body>
+        if (!userGestureUnlocked) {
+          overlay.style.display = 'flex';
+        }
+      });
+    </script>
+  </body>
 </html>
-```
