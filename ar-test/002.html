@@ -169,107 +169,114 @@
     </a-scene>
 
     <script>
-      const tagTarget = document.querySelector('#tag-target');
-      const video = document.querySelector('#specimen-video');
-      const arScene = document.getElementById('ar-scene');
-      
-      const overlay = document.getElementById('start-overlay');
-      const startBtn = document.getElementById('start-btn');
-      const fallbackBtn = document.getElementById('fallback-btn');
-      const fallbackScreen = document.getElementById('fallback-screen');
-      const fallbackVideo = document.getElementById('fallback-video');
+  const tagTarget = document.querySelector('#tag-target');
+  const video = document.querySelector('#specimen-video');
+  const arScene = document.getElementById('ar-scene');
+  
+  const overlay = document.getElementById('start-overlay');
+  const startBtn = document.getElementById('start-btn');
+  const fallbackBtn = document.getElementById('fallback-btn');
+  const fallbackScreen = document.getElementById('fallback-screen');
+  const fallbackVideo = document.getElementById('fallback-video');
 
-      let lostTimeout = null;
-      let userGestureUnlocked = false;
-      let targetIsFound = false;
+  let lostTimeout = null;
+  let userGestureUnlocked = false;
+  let targetIsFound = false;
 
-      tagTarget.addEventListener("targetFound", () => {
-        console.log('Target Found');
-        targetIsFound = true;
+  tagTarget.addEventListener("targetFound", (event) => {
+    // Verification: Ensure the detected target matches Specimen 2's specific file source
+    const activeTargetSrc = arScene.getAttribute('mindar-image');
+    if (!activeTargetSrc.includes('002.mind')) {
+      console.log('Ignored mismatched target');
+      return;
+    }
 
-        if (lostTimeout) {
-          clearTimeout(lostTimeout);
-          lostTimeout = null;
-        }
+    console.log('Target Found: Specimen 002');
+    targetIsFound = true;
 
-        if (userGestureUnlocked) {
-          video.muted = true;
-          video.play().catch((err) => {
-            console.log("Autoplay error on targetFound:", err);
-          });
-        }
+    if (lostTimeout) {
+      clearTimeout(lostTimeout);
+      lostTimeout = null;
+    }
+
+    if (userGestureUnlocked) {
+      video.muted = true;
+      video.play().catch((err) => {
+        console.log("Autoplay error on targetFound:", err);
       });
+    }
+  });
 
-      tagTarget.addEventListener("targetLost", () => {
-        console.log('Target Lost');
-        targetIsFound = false;
-        
-        lostTimeout = setTimeout(() => {
-          video.pause();
-        }, 500);
-      });
+  tagTarget.addEventListener("targetLost", () => {
+    console.log('Target Lost');
+    targetIsFound = false;
+    
+    lostTimeout = setTimeout(() => {
+      video.pause();
+    }, 500);
+  });
 
-      startBtn.addEventListener('click', () => {
-        overlay.style.display = 'none';
-        userGestureUnlocked = true;
+  startBtn.addEventListener('click', () => {
+    overlay.style.display = 'none';
+    userGestureUnlocked = true;
 
-        video.muted = true;
+    video.muted = true;
 
-        video.play().then(() => {
-          if (!targetIsFound) {
-            video.pause();
-            video.currentTime = 0;
-          }
-        }).catch(error => {
-          console.log('Video unlock error:', error);
-        });
-      });
-
-      fallbackBtn.addEventListener('click', async () => {
-        console.log('Switching to fallback video');
-
+    video.play().then(() => {
+      if (!targetIsFound) {
         video.pause();
+        video.currentTime = 0;
+      }
+    }).catch(error => {
+      console.log('Video unlock error:', error);
+    });
+  });
 
-        if (lostTimeout) {
-          clearTimeout(lostTimeout);
-          lostTimeout = null;
-        }
+  fallbackBtn.addEventListener('click', async () => {
+    console.log('Switching to fallback video');
 
-        arScene.style.display = 'none';
-        fallbackBtn.style.display = 'none';
-        overlay.style.display = 'none';
+    video.pause();
 
-        fallbackScreen.style.display = 'flex';
+    if (lostTimeout) {
+      clearTimeout(lostTimeout);
+      lostTimeout = null;
+    }
 
-        try {
-          await fallbackVideo.play();
+    arScene.style.display = 'none';
+    fallbackBtn.style.display = 'none';
+    overlay.style.display = 'none';
 
-          if (fallbackScreen.requestFullscreen) {
-            await fallbackScreen.requestFullscreen();
-          } else if (fallbackScreen.webkitRequestFullscreen) {
-            fallbackScreen.webkitRequestFullscreen();
-          }
-        } catch (error) {
-          console.log('Fallback video error:', error);
-        }
-      });
+    fallbackScreen.style.display = 'flex';
 
-      document.getElementById('back-to-ar').addEventListener('click', () => {
-        if (document.fullscreenElement) {
-          document.exitFullscreen().catch(() => {});
-        }
+    try {
+      await fallbackVideo.play();
 
-        fallbackVideo.pause();
-        fallbackVideo.currentTime = 0;
+      if (fallbackScreen.requestFullscreen) {
+        await fallbackScreen.requestFullscreen();
+      } else if (fallbackScreen.webkitRequestFullscreen) {
+        fallbackScreen.webkitRequestFullscreen();
+      }
+    } catch (error) {
+      console.log('Fallback video error:', error);
+    }
+  });
 
-        fallbackScreen.style.display = 'none';
-        arScene.style.display = '';
-        fallbackBtn.style.display = 'block';
+  document.getElementById('back-to-ar').addEventListener('click', () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
 
-        if (!userGestureUnlocked) {
-          overlay.style.display = 'flex';
-        }
-      });
-    </script>
+    fallbackVideo.pause();
+    fallbackVideo.currentTime = 0;
+
+    fallbackScreen.style.display = 'none';
+    arScene.style.display = '';
+    fallbackBtn.style.display = 'block';
+
+    if (!userGestureUnlocked) {
+      overlay.style.display = 'flex';
+    }
+  });
+</script>
   </body>
 </html>
