@@ -136,7 +136,7 @@
     <a-scene 
       id="ar-scene"
       embedded
-      mindar-image="imageTargetSrc: image-targets/002.mind; filterMinCF: 0.001; filterBeta: 0.05; missTolerance: 20; warmupTolerance: 5;" 
+      mindar-image="imageTargetSrc: image-targets/targets.mind; filterMinCF: 0.001; filterBeta: 0.05; missTolerance: 20; warmupTolerance: 5;" 
       color-space="sRGB" 
       renderer="antialias: true; alpha: true; precision: medium;"
       vr-mode-ui="enabled: false" 
@@ -145,7 +145,7 @@
       <a-assets>
         <video 
           id="specimen-video" 
-          src="assets/specimen002ar.mp4" 
+          src="assets/specimen003ar.mp4" 
           preload="auto" 
           loop 
           muted
@@ -169,114 +169,107 @@
     </a-scene>
 
     <script>
-  const tagTarget = document.querySelector('#tag-target');
-  const video = document.querySelector('#specimen-video');
-  const arScene = document.getElementById('ar-scene');
-  
-  const overlay = document.getElementById('start-overlay');
-  const startBtn = document.getElementById('start-btn');
-  const fallbackBtn = document.getElementById('fallback-btn');
-  const fallbackScreen = document.getElementById('fallback-screen');
-  const fallbackVideo = document.getElementById('fallback-video');
+      const tagTarget = document.querySelector('#tag-target');
+      const video = document.querySelector('#specimen-video');
+      const arScene = document.getElementById('ar-scene');
+      
+      const overlay = document.getElementById('start-overlay');
+      const startBtn = document.getElementById('start-btn');
+      const fallbackBtn = document.getElementById('fallback-btn');
+      const fallbackScreen = document.getElementById('fallback-screen');
+      const fallbackVideo = document.getElementById('fallback-video');
 
-  let lostTimeout = null;
-  let userGestureUnlocked = false;
-  let targetIsFound = false;
+      let lostTimeout = null;
+      let userGestureUnlocked = false;
+      let targetIsFound = false;
 
-  tagTarget.addEventListener("targetFound", (event) => {
-    // Verification: Ensure the detected target matches Specimen 2's specific file source
-    const activeTargetSrc = arScene.getAttribute('mindar-image');
-    if (!activeTargetSrc.includes('002.mind')) {
-      console.log('Ignored mismatched target');
-      return;
-    }
+      tagTarget.addEventListener("targetFound", () => {
+        console.log('Target Found');
+        targetIsFound = true;
 
-    console.log('Target Found: Specimen 002');
-    targetIsFound = true;
+        if (lostTimeout) {
+          clearTimeout(lostTimeout);
+          lostTimeout = null;
+        }
 
-    if (lostTimeout) {
-      clearTimeout(lostTimeout);
-      lostTimeout = null;
-    }
-
-    if (userGestureUnlocked) {
-      video.muted = true;
-      video.play().catch((err) => {
-        console.log("Autoplay error on targetFound:", err);
+        if (userGestureUnlocked) {
+          video.muted = true;
+          video.play().catch((err) => {
+            console.log("Autoplay error on targetFound:", err);
+          });
+        }
       });
-    }
-  });
 
-  tagTarget.addEventListener("targetLost", () => {
-    console.log('Target Lost');
-    targetIsFound = false;
-    
-    lostTimeout = setTimeout(() => {
-      video.pause();
-    }, 500);
-  });
+      tagTarget.addEventListener("targetLost", () => {
+        console.log('Target Lost');
+        targetIsFound = false;
+        
+        lostTimeout = setTimeout(() => {
+          video.pause();
+        }, 500);
+      });
 
-  startBtn.addEventListener('click', () => {
-    overlay.style.display = 'none';
-    userGestureUnlocked = true;
+      startBtn.addEventListener('click', () => {
+        overlay.style.display = 'none';
+        userGestureUnlocked = true;
 
-    video.muted = true;
+        video.muted = true;
 
-    video.play().then(() => {
-      if (!targetIsFound) {
+        video.play().then(() => {
+          if (!targetIsFound) {
+            video.pause();
+            video.currentTime = 0;
+          }
+        }).catch(error => {
+          console.log('Video unlock error:', error);
+        });
+      });
+
+      fallbackBtn.addEventListener('click', async () => {
+        console.log('Switching to fallback video');
+
         video.pause();
-        video.currentTime = 0;
-      }
-    }).catch(error => {
-      console.log('Video unlock error:', error);
-    });
-  });
 
-  fallbackBtn.addEventListener('click', async () => {
-    console.log('Switching to fallback video');
+        if (lostTimeout) {
+          clearTimeout(lostTimeout);
+          lostTimeout = null;
+        }
 
-    video.pause();
+        arScene.style.display = 'none';
+        fallbackBtn.style.display = 'none';
+        overlay.style.display = 'none';
 
-    if (lostTimeout) {
-      clearTimeout(lostTimeout);
-      lostTimeout = null;
-    }
+        fallbackScreen.style.display = 'flex';
 
-    arScene.style.display = 'none';
-    fallbackBtn.style.display = 'none';
-    overlay.style.display = 'none';
+        try {
+          await fallbackVideo.play();
 
-    fallbackScreen.style.display = 'flex';
+          if (fallbackScreen.requestFullscreen) {
+            await fallbackScreen.requestFullscreen();
+          } else if (fallbackScreen.webkitRequestFullscreen) {
+            fallbackScreen.webkitRequestFullscreen();
+          }
+        } catch (error) {
+          console.log('Fallback video error:', error);
+        }
+      });
 
-    try {
-      await fallbackVideo.play();
+      document.getElementById('back-to-ar').addEventListener('click', () => {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
 
-      if (fallbackScreen.requestFullscreen) {
-        await fallbackScreen.requestFullscreen();
-      } else if (fallbackScreen.webkitRequestFullscreen) {
-        fallbackScreen.webkitRequestFullscreen();
-      }
-    } catch (error) {
-      console.log('Fallback video error:', error);
-    }
-  });
+        fallbackVideo.pause();
+        fallbackVideo.currentTime = 0;
 
-  document.getElementById('back-to-ar').addEventListener('click', () => {
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
-    }
+        fallbackScreen.style.display = 'none';
+        arScene.style.display = '';
+        fallbackBtn.style.display = 'block';
 
-    fallbackVideo.pause();
-    fallbackVideo.currentTime = 0;
-
-    fallbackScreen.style.display = 'none';
-    arScene.style.display = '';
-    fallbackBtn.style.display = 'block';
-
-    if (!userGestureUnlocked) {
-      overlay.style.display = 'flex';
-    }
-  });
-</script>
+        if (!userGestureUnlocked) {
+          overlay.style.display = 'flex';
+        }
+      });
+    </script>
   </body>
 </html>
