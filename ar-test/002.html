@@ -136,7 +136,7 @@
     <a-scene 
       id="ar-scene"
       embedded
-      mindar-image="imageTargetSrc: image-targets/002c.mind; filterMinCF: 0.001; filterBeta: 0.05; missTolerance: 20; warmupTolerance: 5;" 
+      mindar-image="imageTargetSrc: image-targets/002.mind; filterMinCF: 0.001; filterBeta: 0.05; missTolerance: 20; warmupTolerance: 5;" 
       color-space="sRGB" 
       renderer="antialias: true; alpha: true; precision: medium;"
       vr-mode-ui="enabled: false" 
@@ -183,26 +183,45 @@
       let userGestureUnlocked = false;
       let targetIsFound = false;
 
+      let stabilityTimer = null;
+
       tagTarget.addEventListener("targetFound", () => {
-        console.log('Target Found');
-        targetIsFound = true;
+        console.log('Potential target detected, verifying stability...');
+        
+        // Clear any existing timer just in case
+        if (stabilityTimer) clearTimeout(stabilityTimer);
 
-        if (lostTimeout) {
-          clearTimeout(lostTimeout);
-          lostTimeout = null;
-        }
+        // Require the target to stay locked in view for 300 milliseconds 
+        // before accepting it as a valid match and playing the video.
+        stabilityTimer = setTimeout(() => {
+          if (tagTarget.object3D.visible) {
+            console.log('Target Confirmed: Specimen 002');
+            targetIsFound = true;
 
-        if (userGestureUnlocked) {
-          video.muted = true;
-          video.play().catch((err) => {
-            console.log("Autoplay error on targetFound:", err);
-          });
-        }
+            if (lostTimeout) {
+              clearTimeout(lostTimeout);
+              lostTimeout = null;
+            }
+
+            if (userGestureUnlocked) {
+              video.muted = true;
+              video.play().catch((err) => {
+                console.log("Autoplay error on targetFound:", err);
+              });
+            }
+          }
+        }, 300); // Adjust this delay (e.g., 300ms to 500ms) if needed
       });
 
       tagTarget.addEventListener("targetLost", () => {
         console.log('Target Lost');
         targetIsFound = false;
+        
+        // Cancel the stability timer immediately if the user looks away
+        if (stabilityTimer) {
+          clearTimeout(stabilityTimer);
+          stabilityTimer = null;
+        }
         
         lostTimeout = setTimeout(() => {
           video.pause();
